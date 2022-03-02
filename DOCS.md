@@ -17,205 +17,6 @@ This fork adds several thngs to the OpenCVE project.
 
 If you are having problems with the installation or the deployed platform, email me at gael.lejeune@capgemini.com. 
 
-# Cloning the library
-
-```
-git clone https://github.com/Gael-Lejeune/opencve opencve
-```
-
-# Installation
-
-## Prerequisite
-
-- Install Docker : https://www.docker.com/products/docker-desktop
-    
-    If you want to know more about docker, you can read [here](https://www.docker.com/resources/what-container).
-  
-## Installation steps
-
-### Configuration
-
-#### Create a copy of the opencve.cfg.example file which is in the conf folder
-```
-cp ./conf/opencve.cfg.example ./conf/opencve.cfg
-```
-<br>
-<br>
-
-#### Edit the opencve.cfg file (remove the <> when you replace)
-```
-server_name = <your_listening_ip>:8000
-secret_key = "<your_secret_key>"
-
-```
-Listening_ip can be setup to 127.0.0.1   
-Secret_key should be between quotes and should not contain the character %, it should be a randomly generated key containing 32 characters.
-<br>
-<br>  
-
-#### Update the SMTP Configuration   
-  
-For the moment, the outlook smtp server is used, please keep in mind that the email functions are not working for the moment, you are not forced to configure it.
-```
-[mail]
-; Choices are 'smtp' or 'sendmail'
-email_adapter = smtp
-
-; The 'From' field of the sent emails
-email_from = examplemail@outlook.com
-
-; Configuration to set up SMTP mails.
-smtp_server = smtp.office365.com
-smtp_port = 587
-smtp_use_tls = True
-smtp_username = examplemail@outlook.com
-smtp_password = examplepassword
-```
-Note that the email_from and smtp_username should be the same.   
-<br>
-<br>
-  
-#### Check files & Line endigs
-  
-Make sure that `./conf/opencve.cfg` and `./run.sh` are LF line terminated (and not CRLF, it could cause errors while building or running the container)
-If you want to learn more about LF and CRLF you can click [here](https://fr.wikipedia.org/wiki/Carriage_Return_Line_Feed). If you want to know how to change this using [Visual Studio Code](https://fr.wikipedia.org/wiki/Carriage_Return_Line_Feed), or [Notepad++](http://sql313.com/index.php/43-main-blogs/maincat-dba/62-using-notepad-to-change-end-of-line-characters).
-
----
-### Building & Cleaning
-
-In the following section, if you are on a linux terminal, and if make is installed, you may use the make commands. Alternatively you could use the docker commands in your windows favorite terminal.
-
-All the following command need to be used in a terminal, in the root folder of the project (you should be able to see files like "*makefile*" or "*Dockerfile*")
-### For Linux terminal users :
-```
-make
-```
-This will **not** import the data in the database. Check [Import data](#import-data) for more informations on that part.
-<br>
-<br>  
-```
-make clean
-```
-Please note that this command will prune your docker volumes, thus deleting any that is not currently used.
-<br>
-<br>
-
-#### More details about the build
-##### Build the OpenCVE image
-```
-make build
-```
-<br>
-<br>
-
-##### Create the container and start them
-```
-make up
-```
-<br>
-<br>
-
-##### Initialize & upgrade the database
-```
-make upgrade
-```
-<br>
-<br>
-  
-### Import data
-```
-make import
-```
-<br>
-<br>
-
-### Create an admin
-Please keep in mind that for now, you can only create users this way, as the email server is not set up. If you want to create a non-administrator account, simply remove the *--admin* option.
-```
-docker exec -it webserver opencve create-user myuser myuser@example.com --admin
->> Password:
->> Repeat for confirmation:
->> [*] User myuser created.
-```
-<br>
-<br>
-
-### Create and start the beat
-```
-make beat
-```
-<br>
-<br>
-
----
-### For windows terminal users
-
-##### Build the OpenCVE image
-```sh
-docker-compose build
-```
-<br>
-<br>
-
-##### Create the container and start them
-```sh
-docker-compose up -d postgres redis webserver celery_worker
-```
-<br>
-<br>
-
-##### Initialize & upgrade the database
-```sh
-docker exec -it webserver opencve upgrade-db
-```
-
-<br>
-<br>
-
-### Import data
-Please keep in mind that this process takes a long time and requires a lot of CPU power.
-```sh
-docker exec -it webserver opencve import-data
-```
-Alternatively, you can use the following command to import less CVEs, making it a bit faster and more suitable for testing.
-  
-```sh
-docker exec -it webserver opencve import-light
-```
-<br>
-<br>
-
-### Create an admin
-```
-docker exec -it webserver opencve create-user myuser myuser@example.com --admin
->> Password:
->> Repeat for confirmation:
->> [*] User myuser created.
-```
-<br>
-<br>
-
-### Create, start the beat, and the other containers, use this function if you want to launch every service
-```sh
-docker-compose up -d postgres redis webserver celery_worker celery_beat
-```
-<br>
-<br>
-
-### Check that everything is working fine
-  
-You can execute    
-```
-docker ps
->> CONTAINER ID   IMAGE           COMMAND                  CREATED          STATUS          PORTS                      NAMES
->> 97e3ef4af44f   opencve:1.2.3   "./run.sh celery-beat"   20 seconds ago   Up 58 minutes                              celery_beat
->> faf7f59fff38   opencve:1.2.3   "./run.sh celery-wor…"   16 hours ago     Up 58 minutes                              celery_worker
->> df0faac8526d   opencve:1.2.3   "./run.sh webserver …"   16 hours ago     Up 58 minutes   0.0.0.0:8000->8000/tcp     webserver
->> 63b7e90d2cd7   redis:buster    "docker-entrypoint.s…"   46 hours ago     Up 58 minutes   127.0.0.1:6379->6379/tcp   redis
->> 38af0f416957   postgres:11     "docker-entrypoint.s…"   46 hours ago     Up 58 minutes   127.0.0.1:5432->5432/tcp   postgres
-```
-If status is up everywhere, everything is working fine.
-You should now be able to reach the app on <your_listening_ip:your_port> on your favorite web browser.
 
 # Understanding the code
 
@@ -248,7 +49,6 @@ Repeat for confirmation:
 [*] User doc created.
 ```
 If you want to create a new script, it is as follows   
-example.py
 ```python
 import click
 #Import what you need
@@ -383,7 +183,7 @@ Please not that this section is about features that are currently in progress or
 ```python
 from opencve.context import _humanize_filter
 from opencve.extensions import db
-from opencve.models import BaseModel, categories_vendors,categories_products,users_categories
+from opencve.models import BaseModel, categories_vendors, categories_products, users_categories
 
 
 class Category(BaseModel):
@@ -395,7 +195,6 @@ class Category(BaseModel):
     vendors = db.relationship("Vendor", secondary=categories_vendors)
     products = db.relationship("Product", secondary=categories_products)
     users = db.relationship("User", secondary=users_categories)
-
 
     @property
     def human_name(self):
@@ -513,6 +312,5 @@ This will create a list of users that will receive emails.
 
 # Encountred problems
 - When you want to upgrade the DB, you will sadly have to make clean and thus re-import the data. The "import-light" function may be optimized to make it even faster and thus help with this problem.
-- Setting up the SMTP server is tricky, the problem is that the "email_from" and "smtp_username" should be the same else it won't work. The logs didn't explain this and i had to do alot of testing to figure it out.
-- Running the default present tests is still a challenge
+- Setting up the SMTP server is tricky, the problem is that the "email_from" and "smtp_username" should be the same else it won't work. The logs didn't explain this and I had to do alot of testing to figure it out.
 - Please use info() or logger.info() to debug or display logs as print() may not display correctly
