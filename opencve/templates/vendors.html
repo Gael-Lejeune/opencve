@@ -68,6 +68,11 @@
                             <th>Vendor</th>
                             <th class="text-center">Products</th>
                             <th class="text-center">Actions</th>
+                            {% if current_user.is_authenticated %}
+                            {% for c in current_user.categories %}
+                                <th class="text-center"> {{ c.name }} </th>
+                            {% endfor %}
+                            {% endif %}
                         </tr>
                         {% for vendor in vendors.items %}
                         <tr>
@@ -94,6 +99,23 @@
                                     <a href="{{ url_for('main.cves', vendor=vendor.name) }}" class="btn btn-default btn-xs"><i class="fa fa-shield"></i> CVE</a>
                                 </div>
                             </td>
+                            {% if current_user.is_authenticated %}
+                                {% for c in current_user.categories %}
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                            {% if vendor in c.vendors %}
+                                            <button class="btn btn-danger btn-xs subscribe"
+                                                id="unsubscribe_categoryvendor_{{ c.id }}+{{ vendor.id }}" type="button">Remove
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-default btn-xs subscribe"
+                                                id="subscribe_categoryvendor_{{ c.id }}+{{ vendor.id }}"   type="button">Add
+                                            </button>
+                                            {% endif %}
+                                    </div>
+                                </td>
+                                {% endfor %}
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </table>
@@ -104,7 +126,8 @@
             </div>
             {% endif %}
         </div>
-        <div class='col-md-7'>
+
+        <div class='col-lg-5'>
             <div class="box box-primary">
                 <div class="box-header with-border">
                     <h3 class="box-title">Products ({{ products.total }})</h3>
@@ -115,6 +138,11 @@
                             <th>Vendor</th>
                             <th>Product</th>
                             <th class="text-center">Actions</th>
+                            {% if current_user.is_authenticated %}
+                            {% for c in current_user.categories %}
+                                <th class="text-center"> {{ c.name }} </th>
+                            {% endfor %}
+                            {% endif %}
                         </tr>
                         {% for product in products.items %}
                         <tr>
@@ -140,6 +168,26 @@
                                     <a href="{{ url_for('main.cves', vendor=product.vendor.name, product=product.name) }}" class="btn btn-default btn-xs"><i class="fa fa-shield"></i> CVE</a>
                                 </div>
                             </td>
+
+                            {% if current_user.is_authenticated %}
+                                {% for c in current_user.categories %}
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        {% if current_user.is_authenticated %}
+                                            {% if product in c.products %}
+                                            <button class="btn btn-danger btn-xs subscribe"
+                                                id="unsubscribe_categoryproduct_{{ c.id }}+{{ product.id }}" type="button">Remove
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-default btn-xs subscribe"
+                                                id="subscribe_categoryproduct_{{ c.id }}+{{ product.id }}"   type="button">Add
+                                            </button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                {% endfor %}
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </table>

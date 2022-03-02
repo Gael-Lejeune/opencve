@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}{{category.name | humanize}} - {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="content-header">
+    <h1>{{category.name | humanize}}</h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.home') }}">OpenCVE</a></li>
+        <li><a href="{{ url_for('main.categories') }}">Categories</a></li>
+        <li class="active">{{category.name}}</li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Category vendors ({{ category.vendors |  length }})</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        {% if category.vendors %}
+                        <table class="table table-hover table-striped">
+                            <tbody>
+                                {% for vendor in category.vendors %}
+                                <tr {% if loop.first %}style="border-top: 0px;" {% endif %}>
+                                    <td style="border-top: 0px;">{{ vendor.name |  humanize }}</td>
+                                    <td class="pull-right" style="border-top: 0px;">
+                                        {% if vendor in category.vendors %}
+                                        <button class="btn btn-danger btn-xs    pull-right subscribe"
+                                                id="unsubscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Remove
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
+                                                id="subscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Add
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>The category has no subscription yet, click <a href="{{ url_for('main.vendors') }}">here</a> to view the entire list of vendors.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Category products ({{ category.products|  length }})</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        {% if category.products %}
+                        <table class="table table-hover table-striped">
+                            <tbody>
+                            {% for product in category.products %}
+                            <tr {% if loop.first %}style="border-top: 0px;" {%  endif %}>
+                                <td style="border-top: 0px;">{{ product.name |  humanize }}</td>
+                                <td class="pull-right" style="border-top: 0px;">
+                                    {% if product in category.products %}
+                                    <button class="btn btn-danger btn-xs    pull-right subscribe"
+                                            id="unsubscribe_categoryproduct_{{category.id}}+{{ product.id }}" type="button">Remove
+                                    </button>
+                                    {% else %}
+                                    <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
+                                            id="subscribe_categoryproduct_{{category.id}}+{{ product.id }}" type="button">Add
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>The category has no subscription yet, click <a href="{{ url_for('main.vendors') }}">here</a> to view the entire list of vendors and products.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Upload File</h3>
+                </div>
+                <div class="box-body">
+                    <p>Click on the "Choose File" button to upload a file:</p>
+                    <form action = "{{ url_for('main.upload_file',  category_name=category.name) }}" method = "POST" enctype ="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <input type = "file" name = "file" />
+                        <input type = "submit" value = "Submit" />
+                    </form>
+                    <br>
+                    <p>Please note that :</p>
+                    <ul>
+                        <li>An .xslx file is expected</li>
+                        <li>Four columns are expected to be declared in the first three rows :</li>
+                            <ul>
+                                <li>Vendor</li>
+                                <li>Product</li>
+                                <li>Version</li>
+                                <li>
+                                    Tag (CPE product tag only, it should be in the following format : <i>my_product_name</i>, you can search for the entire CPE tag <a href="https://nvd.nist.gov/products/cpe/search">here</a>)
+                                </li>
+                            </ul>
+                        <li>The "Tag" column is optionnal and may have empty cells</li>
+                            <ul>
+                                <li>
+                                    If so, the program will try and guess the tag from the other columns.
+                                    Please, keep in mind that this is not perfect, you may check that every thing was imported after the process. 
+                                </li>
+                            </ul>
+                        <li>This operation may take several minutes</li>
+                    <ul>
+                    <!-- TODO : Maybe add an example picture of a valid file ? -->
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Edit Category name</h3>
+                </div>
+                <div class="box-body">
+                    <form action = "{{ url_for('main.edit_name',  category_name=category.name) }}" method="POST" role="form" class="form-horizontal">
+                        {{ form.hidden_tag() }}
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="submit">Edit</button>
+                                    </span>
+                                    <form method="POST">
+                                        <input type="text" placeholder="Category name" class="form-control" name="new_category_name">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <a href = "{{ url_for('main.delete',  category_name=category.name) }}">
+                        <button class="btn btn-danger btn-xs pull-right" id="delete_{{ category.name }}">Delete</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <a href = "{{ url_for('main.generateReport', category_name=category.name) }}">
+            <button class="btn btn-danger btn-xs pull-right" id="generateReport_{{ current_user.username }}">Generate Custom Report based on selected Category</button>
+        </a>
+    </div>
+</section>
+
+{% endblock %}

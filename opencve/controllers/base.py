@@ -56,7 +56,6 @@ class BaseController(object):
             page=args.get(cls.page_parameter),
             total=objects.total,
             per_page=app.config[cls.per_page_param],
-            page_parameter=cls.page_parameter,
             record_name="objects",
             css_framework="bootstrap3",
         )

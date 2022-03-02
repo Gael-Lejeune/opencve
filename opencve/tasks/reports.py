@@ -18,7 +18,7 @@ logger = get_task_logger(__name__)
 def get_users_with_alerts():
     """
     If we are between 11:00 AM and 11:15 AM, we get all the users. Otherwise
-    we only select the 'always' frequency ones (todo: find a cleaner solution).
+    we only select the 'always' frequency ones (TODO : find a cleaner solution).
     """
     now = datetime.now()
     query = User.query.filter(User.alerts.any(Alert.notify == False))

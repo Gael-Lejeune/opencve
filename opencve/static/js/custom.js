@@ -32,6 +32,15 @@ $.ajaxSetup({
                     if ( $(button).text().trim() == 'Subscribe' ) {
                         $(button).text('Unsubscribe');
                         $(button).attr("id", $(button).attr('id').replace('subscribe', 'unsubscribe'));
+
+                    } else if ( $(button).text().trim() == 'Add' ) {
+                        $(button).text('Remove');
+                        $(button).attr("id", $(button).attr('id').replace('subscribe', 'unsubscribe'));
+
+                    } else if ( $(button).text().trim() == 'Remove' ) {
+                        $(button).text('Add');
+                        $(button).attr("id", $(button).attr('id').replace('unsubscribe', 'subscribe'));
+                        
                     } else {
                         $(button).text('Subscribe');
                         $(button).attr("id", $(button).attr('id').replace('unsubscribe', 'subscribe'));

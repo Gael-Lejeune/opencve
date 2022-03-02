@@ -67,6 +67,47 @@ users_products = db.Table(
     ),
 )
 
+# Add user categories
+users_categories = db.Table(
+    "users_categories",
+    db.Column(
+        "user_id", UUIDType(binary=False), db.ForeignKey("users.id"), primary_key=True
+    ),
+    db.Column(
+        "category_id",
+        UUIDType(binary=False),
+        db.ForeignKey("categories.id"),
+        primary_key=True,
+    ),
+)
+
+
+categories_vendors = db.Table(
+    "categories_vendors",
+    db.Column(
+        "category_id", UUIDType(binary=False), db.ForeignKey("categories.id"), primary_key=True
+    ),
+    db.Column(
+        "vendor_id",
+        UUIDType(binary=False),
+        db.ForeignKey("vendors.id"),
+        primary_key=True,
+    ),
+)
+
+categories_products = db.Table(
+    "categories_products",
+    db.Column(
+        "category_id", UUIDType(binary=False), db.ForeignKey("categories.id"), primary_key=True
+    ),
+    db.Column(
+        "product_id",
+        UUIDType(binary=False),
+        db.ForeignKey("products.id"),
+        primary_key=True,
+    ),
+)
+
 alerts_events = db.Table(
     "alerts_events",
     db.Column(

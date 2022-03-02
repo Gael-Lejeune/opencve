@@ -1,4 +1,6 @@
 import datetime
+import json
+from difflib import HtmlDiff
 
 import arrow
 from flask import abort
@@ -8,6 +10,30 @@ from flask_user import current_user
 from sqlalchemy import desc, func
 from sqlalchemy.orm import joinedload
 from wtforms import PasswordField, validators
+
+
+class CustomHtmlHTML(HtmlDiff):
+    def __init__(self, *args, **kwargs):
+        self._table_template = """
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th colspan="2">Old JSON</th>
+                    <th colspan="2">New JSON</th>
+                </tr>
+            </thead>
+            <tbody>%(data_rows)s</tbody>
+        </table>"""
+        super().__init__(*args, **kwargs)
+
+    def _format_line(self, side, flag, linenum, text):
+        text = text.replace("&", "&amp;").replace(
+            ">", "&gt;").replace("<", "&lt;")
+        text = text.replace(" ", "&nbsp;").rstrip()
+        return '<td class="diff_header">%s</td><td class="break">%s</td>' % (
+            linenum,
+            text,
+        )
 
 
 class AuthModelView(ModelView):
@@ -32,7 +58,8 @@ class HomeView(AdminIndexView):
 
         # Import here to avoid circular dependencies
         from opencve.extensions import db
-        from opencve.models import users_products, users_vendors
+        from opencve.models import users_categories, users_products, users_vendors
+        from opencve.models.categories import Category
         from opencve.models.cve import Cve
         from opencve.models.products import Product
         from opencve.models.reports import Report
@@ -54,6 +81,9 @@ class HomeView(AdminIndexView):
 
         # Numbers of vendors
         vendors = Vendor.query.count()
+
+        # Numbers of categories
+        categories = Category.query.count()
 
         # Numbers of products
         products = Product.query.count()
@@ -86,6 +116,20 @@ class HomeView(AdminIndexView):
                 func.count(users_products.c.user_id).label("total"),
             )
             .join(users_products)
+            .group_by(User.id, User.username)
+            .order_by(desc("total"))
+            .limit(10)
+            .all()
+        )
+
+        # Number of categories per user
+        user_categories = (
+            db.session.query(
+                User.id,
+                User.username,
+                func.count(users_categories.c.user_id).label("total"),
+            )
+            .join(users_categories)
             .group_by(User.id, User.username)
             .order_by(desc("total"))
             .limit(10)
@@ -146,11 +190,13 @@ class HomeView(AdminIndexView):
                 "Total reports": reports,
                 "Total vendors": vendors,
                 "Total products": products,
+                "Total categories": categories,
                 "Last task": task_date,
             },
             users={
                 "vendors": user_vendors,
                 "products": user_products,
+                "categories": user_categories,
                 "reports": user_reports,
             },
             week=week,
@@ -177,6 +223,7 @@ class HomeView(AdminIndexView):
     def task(self, id):
         from .models.tasks import Task
         from .models.changes import Change
+        from .models.tasks import Task
 
         task = Task.query.get(id)
         changes = (
@@ -188,6 +235,36 @@ class HomeView(AdminIndexView):
         )
 
         return self.render("admin/task.html", task=task, changes=changes)
+
+    @expose("/changes/<id>")
+    def change(self, id):
+        from .models.changes import Change
+
+        change = Change.query.get(id)
+        previous = (
+            Change.query.filter(Change.created_at < change.created_at)
+            .filter(Change.cve == change.cve)
+            .order_by(Change.created_at.desc())
+            .first()
+        )
+
+        if previous:
+            previous_json = previous.json
+        else:
+            previous_json = {}
+
+        differ = CustomHtmlHTML()
+        diff = differ.make_table(
+            fromlines=json.dumps(
+                previous_json, sort_keys=True, indent=2).split("\n"),
+            tolines=json.dumps(change.json, sort_keys=True,
+                               indent=2).split("\n"),
+            context=True,
+        )
+
+        return self.render(
+            "/admin/change.html", change=change, previous=previous, diff=diff
+        )
 
 
 class UserModelView(AuthModelView):
@@ -201,6 +278,7 @@ class UserModelView(AuthModelView):
         "username",
         "email",
         "created_at",
+        "categories",
         "updated_at",
         "email_confirmed_at",
         "enable_notifications",
@@ -240,6 +318,7 @@ class UserModelView(AuthModelView):
         "last_name",
         "active",
         "admin",
+        "categories",
     )
     form_edit_rules = (
         "username",
@@ -249,6 +328,7 @@ class UserModelView(AuthModelView):
         "last_name",
         "active",
         "admin",
+        "categories",
     )
 
     def on_model_change(self, form, User, is_created):
@@ -285,6 +365,14 @@ class VendorModelView(AuthModelView):
     edit_modal = False
     can_view_details = True
     column_list = ["name", "created_at"]
+
+
+class CategoryModelView(AuthModelView):
+    page_size = 20
+    create_modal = False
+    edit_modal = False
+    can_view_details = True
+    column_list = ["name", "created_at", "vendors", "products"]
 
 
 class ProductModelView(AuthModelView):

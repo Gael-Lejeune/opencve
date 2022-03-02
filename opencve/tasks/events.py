@@ -30,6 +30,12 @@ def has_changed():
     nvd_sha256 = matches.group(1)
     last_nvd256 = Meta.query.filter_by(name="nvd_last_sha256").first()
 
+    if matches is None:
+        logger.info("DB is up to date.")
+        return last_nvd256, None
+    
+    nvd_sha256 = matches.group(1)
+    
     if nvd_sha256 != last_nvd256.value:
         logger.info(
             "Found different hashes (old:{}, new:{}).".format(

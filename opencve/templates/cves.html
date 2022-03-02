@@ -202,6 +202,9 @@ Vulnerabilities (CVE)
                         <th class="text-center">Updated</th>
                         <th class="text-center">CVSS v2</th>
                         <th class="text-center">CVSS v3</th>
+                        {% if current_user.is_authenticated %}
+                        <th class="text-center">Impacted categories</th>
+                        {% endif %}
                         </thead>
                         {% for cve in cves.items %}
                         <tr class="cve-header">
@@ -223,6 +226,30 @@ Vulnerabilities (CVE)
                             </td>
                             {% else %}
                             <td class="col-md-1 text-center"><span class="label label-default">N/A</span></td>
+                            {% endif %}
+                            {% if current_user.is_authenticated %}
+                            <td>
+                                {% set displayedCategories = [] %}
+                                {% for category in current_user.categories %}
+                                    {% for v in cve.vendors %}
+                                        {% for vendor in category.vendors %}
+                                            {% if vendor.name == v and category not in displayedCategories%}
+                                                <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}">{{ category.name  | humanize }}</a>
+                                                {% set displayedCategories = displayedCategories.append(category) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for product in category.products %}
+                                            {% if product.name in v.split("$")[2] and category not in displayedCategories %}
+                                                <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name | humanize }}</a>
+                                                {% set displayedCategories = displayedCategories.append(category) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endfor %}
+                                {% if not displayedCategories %}
+                                <span class="label label-default">None</span>
+                                {% endif %}
+                            </td>
                             {% endif %}
                         </tr>
                         <tr class="cve-summary">

@@ -1,3 +1,5 @@
+import string
+
 from nested_lookup import nested_lookup
 from difflib import HtmlDiff
 
@@ -57,6 +59,18 @@ def get_cwes_details(problems):
             cwes[cwe_id] = cwe.name
     return cwes
 
+
+def get_vendors_letters():
+    """
+    Returns a list of letters used to filter the vendors.
+    """
+    return list(string.ascii_lowercase + "@" + string.digits)
+
+def get_categories_letters():
+    """
+    Returns a list of letters used to filter the vendors.
+    """
+    return list(string.ascii_lowercase + "@" + string.digits)
 
 class CustomHtmlHTML(HtmlDiff):
     def __init__(self, *args, **kwargs):

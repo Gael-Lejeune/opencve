@@ -1,6 +1,6 @@
 from opencve.context import _humanize_filter
 from opencve.extensions import db
-from opencve.models import BaseModel, users_vendors
+from opencve.models import BaseModel, users_vendors, categories_vendors
 
 
 class Vendor(BaseModel):
@@ -11,6 +11,8 @@ class Vendor(BaseModel):
     # Relationships
     products = db.relationship("Product", back_populates="vendor")
     users = db.relationship("User", secondary=users_vendors)
+    categories = db.relationship("Category", secondary=categories_vendors)
+
 
     @property
     def human_name(self):

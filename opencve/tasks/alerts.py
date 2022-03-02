@@ -7,32 +7,16 @@ from opencve.models.cve import Cve
 from opencve.models.events import Event
 from opencve.models.products import Product
 from opencve.models.vendors import Vendor
+from opencve.models.categories import Category
+from opencve.commands import error, info
 
 logger = get_task_logger(__name__)
 
 
 def filter_events(user, events):
-    # Only keep the wanted events
-    filtered_events = {
-        e.type.code: e
-        for e in events
-        if e.type.code in user.filters_notifications["event_types"]
-    }
-
-    # Check if new vendors/products match the user's subscriptions
-    if "first_time" in filtered_events.keys():
-
-        # TODO: refactor with controllers.home::home (+tests)
-        subscriptions = [v.name for v in user.vendors]
-        subscriptions.extend(
-            [f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in user.products]
-        )
-
-        if not any(s in filtered_events["first_time"].details for s in subscriptions):
-            del filtered_events["first_time"]
-
-    return list(filtered_events.values())
-
+    return [
+        e for e in events if e.type.code in user.filters_notifications["event_types"]
+    ]
 
 @cel.task(name="HANDLE_ALERTS")
 def handle_alerts():
@@ -67,10 +51,18 @@ def handle_alerts():
                 product = Product.query.filter_by(
                     name=v.split(PRODUCT_SEPARATOR)[1], vendor_id=vendor.id
                 ).first()
+                categories = Category.query.filter(
+                    Category.products.contains(product)
+                    ).all()
                 for user in product.users:
                     if user not in users.keys():
                         users[user] = {"products": [], "vendors": []}
                     users[user]["products"].append(product.name)
+                for category in product.categories:
+                    for u in category.users:
+                        if u not in users.keys():
+                            users[u] = {"products": [], "vendors": []}
+                        users[u]["products"].append(product.name)
 
             # Vendor
             else:
@@ -79,14 +71,21 @@ def handle_alerts():
                     if user not in users.keys():
                         users[user] = {"products": [], "vendors": []}
                     users[user]["vendors"].append(vendor.name)
+                for category in vendor.categories:
+                    for u in category.users:
+                        if u not in users.keys():
+                            users[u] = {"products": [], "vendors": []}
+                        users[u]["vendors"].append(vendor.name)
 
         # No users concerned
         if not users:
             logger.info("No users to alert.")
+            info("[HANDLE_ALERTS] No users to alert.")
             for event in events:
                 event.review = True
             db.session.commit()
             continue
+        info("[HANDLE_ALERTS] USERS " + str(users))
 
         # Users need to be alerted
         logger.info("{} users found, creating the alerts...".format(len(users)))

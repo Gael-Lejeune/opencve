@@ -117,7 +117,10 @@
                     class="fa fa-tags"></i> <span> Vendors & Products (CPE)</span></a></li>
                 <li {% if is_active(
                 "main.cwes") %}class="active"{% endif %}><a href="{{ url_for('main.cwes') }}"><i
-                    class="fa fa-sitemap"></i> <span> Categories (CWE)</span></a></li>
+                    class="fa fa-sitemap"></i> <span> CWE</span></a></li>
+                    <li {% if is_active(
+                "main.categories") %}class="active"{% endif %}><a href="{{ url_for('main.categories') }}"><i
+                    class="fa fa-shield"></i> <span> Categories</span></a></li>
             </ul>
 
         </section>

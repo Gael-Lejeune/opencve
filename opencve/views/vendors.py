@@ -3,7 +3,9 @@ from flask import request, render_template
 from opencve.controllers.main import main
 from opencve.controllers.products import ProductController
 from opencve.controllers.vendors import VendorController
-
+from opencve.models.categories import Category
+from opencve.utils import get_vendors_letters
+from flask_user import current_user
 
 @main.route("/vendors")
 def vendors():

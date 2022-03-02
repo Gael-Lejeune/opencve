@@ -19,8 +19,8 @@
         <div class="col-md-8">
             {% if not changes %}
             <p class="alert alert-info">
-                {% if current_user.settings['activities_view'] == 'subscriptions' and not current_user.vendors and not current_user.products %}
-                You have to subscribe to <a href="{{ url_for('main.vendors') }}">products and vendors</a> to see their last changes.
+                {% if current_user.settings['activities_view'] == 'subscriptions' and not current_user.vendors and not current_user.products and not current_user.categories %}
+                You have to subscribe to <a href="{{ url_for('main.vendors') }}">products and vendors</a> or <a href="{{ url_for('main.categories') }}">categories</a> to see their last changes.
                 {% else %}
                 No changes available.
                 {% endif %}
@@ -54,6 +54,37 @@
                             <span class="time" title="{{ change.created_at.strftime('%d %b %Y, %H:%M') }}"><i class="fa fa-clock-o"></i> {{ change.created_at.strftime("%H:%M") }}</span>
                             <h3 class="timeline-header"><a href="{{ url_for('main.cve', cve_id=change.cve.cve_id) }}">{{ change.cve.cve_id }}</a> {% if new %}is a new CVE{% else %}has changed{% endif %} <a href="{{ url_for('main.cve_change', cve_id=change.cve.cve_id, change_id=change.id) }}" class="btn-json-diff" data-toggle="tooltip" data-container="body" title="View the change details"><i class="fa fa-code"></i></a></h3>
                             <div class="timeline-body">
+                                <table class="table">
+                                    <thead>
+                                        <th class="no-bordered">Impacted categories</th>
+                                    <thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                {% set displayedCategories = [] %}
+                                                {% for category in current_user.categories %}
+                                                    {% for v in change.cve.vendors %}
+                                                        {% for vendor in category.vendors %}
+                                                            {% if vendor.name == v and category not in displayedCategories %}
+                                                                <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}">{{ category.name | humanize }}</a>
+                                                                {% set displayedCategories = displayedCategories.append(category) %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% for product in category.products %}
+                                                            {% if product.name in v.split("$")[2] and category not in displayedCategories %}
+                                                            <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}">{{ category.name | humanize }}</a>
+                                                            {% set displayedCategories = displayedCategories.append(category) %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                {% if not displayedCategories %}
+                                                <span class="label label-default">None</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                                 <div class="row">
                                     <div class="col-md-9">
                                         <p>{{ change.cve.summary }}</p>
@@ -177,7 +208,7 @@
                 </div>
             </div>
 
-            {% if current_user.vendors or current_user.products %}
+            {% if current_user.vendors or current_user.products or current_user.categories %}
             <div class="box box-primary">
                 <div class="box-header">
                     <div class="box-title">Subscriptions</div>
@@ -192,11 +223,18 @@
                     <a class="label label-primary" href="{{ url_for('main.cves', vendor=vendor.name) }}">{{ vendor.name
                         | humanize }}</a>
                     {% endfor %}
-
+                    {% endif %}
                     {% if current_user.products %}
                     <hr/>
                     {% endif %}
+
+                    {% if current_user.categories %}
+                    <h5><strong>Categories <span>({{ current_user.categories|length }})</span></strong></h5>
+                    {% for category in current_user.categories %}
+                    <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name  | humanize }}</a>
+                    {% endfor %}
                     {% endif %}
+
                     {% if current_user.products %}
                     <h5><strong>Products <span>({{ current_user.products|length }})</span></strong></h5>
                     {% for product in current_user.products %}
@@ -242,6 +280,7 @@
                         <thead>
                         <tr><th class="col-md-2">Date</th>
                         <th>Vendors &amp; Products</th>
+                        <th>Impacted Categories</th>
                         </tr></thead>
 
                         <tbody>
@@ -249,12 +288,35 @@
                         <tr>
                             <td><a href="{{ url_for('main.report', link=report.public_link) }}">{{ report.created_at.strftime("%d/%m/%y") }}</a></td>
                             <td>{{ report.details|report_excerpt|safe }}</td>
+                            <td>
+                                {% set displayedCategories = [] %}
+                                {% for category in current_user.categories %}
+                                    {% for vendor in category.vendors %}
+                                        {% if vendor.name in report.details and category not in displayedCategories %}
+                                            <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name  | humanize }}</a>
+                                            {% set displayedCategories = displayedCategories.append(category) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for product in category.products %}
+                                        {% if product.name in report.details and category not in displayedCategories %}
+                                            <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name  | humanize }}</a>
+                                            {% set displayedCategories = displayedCategories.append(category) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                {% if not displayedCategories %}
+                                <span class="label label-default">None</span>
+                                {% endif %}
+                                </td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+            <a href = "{{ url_for('main.generateUserReport') }}">
+                <button class="btn btn-danger btn-xs pull-right" id="generateReport_{{ current_user.username }}">Generate Custom Report based on current user profile</button>
+            </a>
         </div>
     </div>
 </section>

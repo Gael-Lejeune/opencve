@@ -36,6 +36,27 @@
                 <div class="tab-content" style="width: 100%;">
                     {% for key, alerts in alerts_sorted.items() %}
                     <div id="{{ key }}" class="tab-pane {% if loop.first %}active{% endif %}">
+                        <td>Impacted Categories : </td>
+                        <td>
+                        {% set displayedCategories = [] %}
+                        {% for category in current_user.categories %}
+                            {% for vendor in category.vendors %}
+                                {% if vendor.name == key and category not in displayedCategories %}
+                                    <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name  | humanize }}</a>
+                                    {% set displayedCategories = displayedCategories.append(category) %}
+                                {% endif %}
+                            {% endfor %}
+                            {% for product in category.products %}
+                                {% if product.name == key and category not in displayedCategories %}
+                                    <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name  | humanize }}</a>
+                                    {% set displayedCategories = displayedCategories.append(category) %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                        {% if not displayedCategories %}
+                        <span class="label label-default">None</span>
+                        {% endif %}
+                        </td>
                         <table class="table">
                             <thead>
                             <th>CVE</th>

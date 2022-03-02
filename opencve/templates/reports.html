@@ -23,6 +23,7 @@
                         <th class="col-md-2">Date</th>
                         <th class="col-md-1 text-center">Alerts</th>
                         <th>Vendors & Products</th>
+                        <th>Impacted Categories</th> 
                         </thead>
                         {% for report in reports.items %}
                         <tr>
@@ -30,6 +31,26 @@
                                 report.created_at.strftime("%b %d '%y at %H:%M") }}</a></td>
                             <td class="text-center">{{ report.alerts|length }}</td>
                             <td>{{ report.details|report_excerpt|safe }}</td>
+                            <td>
+                            {% set displayedCategories = [] %}
+                            {% for category in current_user.categories %}
+                                {% for vendor in category.vendors %}
+                                    {% if vendor.name in report.details and category not in displayedCategories %}
+                                        <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name  | humanize }}</a>
+                                        {% set displayedCategories = displayedCategories.append(category) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for product in category.products %}
+                                    {% if product.name in report.details and category not in displayedCategories %}
+                                        <a class="label label-primary" href="{{ url_for('main.category',category_name=category.name) }}" >{{ category.name  | humanize }}</a>
+                                        {% set displayedCategories = displayedCategories.append(category) %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            {% if not displayedCategories %}
+                            <span class="label label-default">None</span>
+                            {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </table>

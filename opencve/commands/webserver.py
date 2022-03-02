@@ -12,6 +12,8 @@ from opencve.commands import ensure_config
 @with_appcontext
 def webserver(args):
     """Run the webserver."""
-    args = ["gunicorn"] + list(args)
+    # TODO : Find a better way of handling timeouts so that xlsx files can be imported correctly
+    # Maybe search for threading with a waiting logo ?
+    args = ["gunicorn"] + list(args) + ["-t", "1000"]
     args.append("opencve.app:app")
     os.execvp(args[0], args)

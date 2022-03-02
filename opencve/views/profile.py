@@ -4,6 +4,11 @@ from flask_login import current_user, login_required
 
 from opencve.controllers.main import main
 from opencve.controllers.tags import UserTagController
+from opencve.extensions import db
+from opencve.forms import (ChangeEmailForm, ChangePasswordForm,
+                           FiltersNotificationForm, MailNotificationsForm,
+                           TagForm)
+from opencve.models.categories import Category
 from opencve.models.cve import Cve
 from opencve.models.tags import CveTag, UserTag
 from opencve.extensions import db
@@ -20,6 +25,14 @@ from opencve.forms import (
 @login_required
 def subscriptions():
     return render_template("profiles/subscriptions.html")
+
+
+@main.route("/account/category", methods=["GET"])
+@login_required
+def manage_category():
+    # if current_user.category_manager is None:
+    #     return render_template("profiles/error.html")
+    return render_template("profiles/categories.html")
 
 
 @main.route("/account/notifications", methods=["GET", "POST"])
