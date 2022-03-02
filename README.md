@@ -1,3 +1,14 @@
+# PLEASE READ THIS
+
+This is a **fork** of the OpenCVE project.
+
+The **base project's documentation** can be found [here](https://docs.opencve.io/). It is the best way to understand what is OpenCVE. You can also try it out [here](https://www.opencve.io/).
+
+For this particular fork of the project, please refer to [our documentation](https://github.com/Gael-Lejeune/opencve/DOCS.md).
+
+---
+---
+----
 <p align="center">
   <img alt="OpenCVE" src="https://raw.githubusercontent.com/opencve/opencve/master/logo.png">
 </p>
