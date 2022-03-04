@@ -391,7 +391,6 @@ def generateCategoryReport(category, period):
 
 
     # Print all the CVEs associated to the category
-    # TODO: FIX. Some CVEs are selected, even if they are not associated to the category
     ws = wb.create_sheet("CVEs")
     ws['A1'] = "Creation date"
     ws['B1'] = "Last update"

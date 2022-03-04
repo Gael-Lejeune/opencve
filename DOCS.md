@@ -23,6 +23,9 @@ Please keep in mind that project is designed to be installed with [our fork of o
 If you want to learn more, you can check it [here](https://github.com/Gael-Lejeune/opencve-docker).
 
 # Understanding the code
+<p align="center">
+<img src="how-it-works.PNG"/>
+</p>
 
 ## Tree
 ```

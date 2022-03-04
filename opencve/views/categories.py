@@ -24,8 +24,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# TODO: Rename the file to "categories.py"
-# This currently triggers an AssertionError... I can't figure out why.
 @login_required
 @main.route("/categories", methods=['GET', 'POST'])
 def categories():  # Categories list
