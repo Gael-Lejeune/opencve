@@ -17,6 +17,10 @@ This fork adds several thngs to the OpenCVE project.
 
 If you are having problems with the installation or the deployed platform, email me at gael.lejeune@capgemini.com. 
 
+# Installation
+Please keep in mind that project is designed to be installed with [our fork of opencve-docker](https://github.com/Gael-Lejeune/opencve-docker).
+
+If you want to learn more, you can check it [here](https://github.com/Gael-Lejeune/opencve-docker).
 
 # Understanding the code
 

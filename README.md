@@ -4,7 +4,7 @@ This is a **fork** of the OpenCVE project.
 
 The **base project's documentation** can be found [here](https://docs.opencve.io/). It is the best way to understand what is OpenCVE. You can also try it out [here](https://www.opencve.io/).
 
-For this particular fork of the project, please refer to [our documentation](https://github.com/Gael-Lejeune/opencve/DOCS.md).
+For this particular fork of the project, please refer to [our documentation](https://github.com/Gael-Lejeune/opencve/blob/master/DOCS.md).
 
 ---
 ---
