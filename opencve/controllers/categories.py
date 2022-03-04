@@ -5,6 +5,7 @@ from difflib import get_close_matches
 from pathlib import Path
 
 import openpyxl
+from openpyxl.styles import PatternFill
 from flask import abort, send_file
 from flask import current_app as app
 from opencve.commands import create_category, ensure_config, error, info
@@ -20,7 +21,10 @@ from sqlalchemy.exc import IntegrityError
 import datetime
 from openpyxl import Workbook
 from flask_user import current_user
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
+from opencve.utils import convert_cpes, get_cwes_details, CustomHtmlHTML
+from opencve.controllers.cves import CveController
+
 
 
 
@@ -251,9 +255,8 @@ def generateCategoryReport(category, period):
     ws["C1"] = "Number of CVEs since" + str(date.strftime("%Y-%m-%d"))
     ws["D1"] = "CVSS2 Score mean"
     ws["E1"] = "CVSS3 Score mean"
-    ws["F1"] = "Number of critical CVEs (above 7.5)"
+    ws["F1"] = "Number of critical CVEs (CVSS2 or CVSS3 above 7.5)"
     i = 2
-    total = 0
     cves = []
 
     for product in category.products:
@@ -272,10 +275,55 @@ def generateCategoryReport(category, period):
 
         cves += cveQuery
         count = cveQuery.count()
-        total += count
+
         ws['C'+str(i)] = count
+
+        cvss2AVG = cveQuery.filter(Cve.cvss2 != None).with_entities(func.avg(Cve.cvss2)).scalar()
+        cvss3AVG = cveQuery.filter(Cve.cvss3 != None).with_entities(func.avg(Cve.cvss3)).scalar()
+
+        cvss2AVG = round(cvss2AVG, 2) if cvss2AVG else None
+        cvss3AVG = round(cvss3AVG, 2) if cvss3AVG else None
+
+        # TODO : The colors are not working properly because cvss2 and cvss3 are NoneType for some reason
+        ws['D'+str(i)] = cvss2AVG if cvss2AVG else None # "N/A"
+        # if cvss2AVG >= 7.5:
+        #     ws['D'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        # elif cvss2AVG >= 5.0:
+        #     ws['D'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        # else:
+        #     ws['D'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+
+        ws['E'+str(i)] = cvss3AVG if cvss3AVG else None # "N/A"
+        # if cvss3AVG >= 7.5:
+        #     ws['E'+str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        # elif cvss3AVG >= 5.0:
+        #     ws['E'+str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        # else:
+        #     ws['E'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+
+
+        criticalCount = cveQuery.filter(
+            or_(
+                Cve.cvss2 >= 7.5,
+                Cve.cvss3 >= 7.5
+            )
+        ).count()
+
+        ws['F'+ str(i)] = criticalCount
+        if count and criticalCount/count >= 0.75:
+            ws['F'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        elif count and criticalCount/count >= 0.25:
+            ws['F'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        else:
+            ws['F'+ str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+            
         i += 1
-    ws['C'+str(i)] = total
+    
+    ws['A'+str(i)] = "Totals and averages"
+    ws['C'+str(i)] = "=SUM(C2:C"+str(i-1)+")"
+    ws['D'+str(i)] = "=AVERAGE(D2:D"+str(i-1)+")"
+    ws['E'+str(i)] = "=AVERAGE(E2:E"+str(i-1)+")"
+    ws['F'+str(i)] = "=SUM(F2:F"+str(i-1)+")"
 
 
     ws = wb.create_sheet("Vendors")
@@ -283,9 +331,8 @@ def generateCategoryReport(category, period):
     ws["B1"] = "Number of CVEs since" + str(date.strftime("%Y-%m-%d"))
     ws["C1"] = "CVSS2 Score mean"
     ws["D1"] = "CVSS3 Score mean"
-    ws["E1"] = "Number of critical CVEs (above 7.5)"
+    ws["E1"] = "Number of critical CVEs (CVSS2 or CVSS3 above 7.5)"
     i = 2
-    total = 0
 
     for vendor in category.vendors:
         ws['A'+str(i)] = vendor.name
@@ -300,12 +347,47 @@ def generateCategoryReport(category, period):
             )
         )
         
+        cvss2AVG = cveQuery.filter(Cve.cvss2 != None).with_entities(func.avg(Cve.cvss2)).scalar()
+        cvss3AVG = cveQuery.filter(Cve.cvss3 != None).with_entities(func.avg(Cve.cvss3)).scalar()
+
+        cvss2AVG = round(cvss2AVG, 2) if cvss2AVG else None
+        cvss3AVG = round(cvss3AVG, 2) if cvss3AVG else None
+
+        # TODO : The colors are not working properly because cvss2 and cvss3 are NoneType for some reason
+        ws['C'+str(i)] = cvss2AVG if cvss2AVG else None # "N/A"
+        # if cvss2AVG >= 7.5:
+        #     ws['C'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        # elif cvss2AVG >= 5.0:
+        #     ws['C'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        # else:
+        #     ws['C'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+        ws['D'+str(i)] = cvss3AVG if cvss3AVG else None # "N/A"
+        # if cvss3AVG >= 7.5:
+        #     ws['D'+str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        # elif cvss3AVG >= 5.0:
+        #     ws['D'+str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        # else:
+        #     ws['D'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+
+
+
+        ws['E'+ str(i)] = cveQuery.filter(
+            or_(
+                Cve.cvss2 >= 7.5,
+                Cve.cvss3 >= 7.5
+            )
+        ).count()
+
         cves += cveQuery
         count = cveQuery.count()
-        total += count
-        ws['C'+str(i)] = count
+        ws['B'+str(i)] = count
         i += 1
-    ws['C'+str(i)] = total
+    ws['A'+str(i)] = "Totals and averages"
+    ws['B'+str(i)] = "=SUM(B2:B"+str(i-1)+")"
+    ws['C'+str(i)] = "=AVERAGE(C2:C"+str(i-1)+")"
+    ws['D'+str(i)] = "=AVERAGE(D2:D"+str(i-1)+")"
+    ws['E'+str(i)] = "=SUM(E2:E"+str(i-1)+")"
+
 
 
     # Print all the CVEs associated to the category
@@ -317,11 +399,11 @@ def generateCategoryReport(category, period):
     ws['D1'] = "Vendor"
     ws['E1'] = "Product"
     ws['F1'] = "Description"
-    ws['G1'] = "References"
-    ws['H1'] = "CWE"
-    ws['I1'] = "CVSS2"
-    ws['J1'] = "CVSS3"
-    total = 0
+    ws['G1'] = "CWE"
+    ws['H1'] = "CVSS2"
+    ws['I1'] = "CVSS3"
+    ws['J1'] = "Mitre Link"
+
     i = 2
 
     for cve in cves:
@@ -330,22 +412,44 @@ def generateCategoryReport(category, period):
         ws['C'+str(i)] = cve.cve_id
         CVEvendors = []
         CVEproducts = []
-        tab = str(cve.vendors).split('\'')
+        tab = convert_cpes(cve.json["configurations"])
 
-        for j in range(len(cve.vendors)):
-            if tab[j] != '[' and tab[j] != ']' and ',' not in tab[j]:
-                if '$' not in tab[j]: # TODO : Maybe change it to only display followed impacted vendors, or make it more easy to understand 
-                    CVEvendors.append(tab[j])
-                else: # TODO : Maybe change it to only display followed impacted products, or make it more easy to understand 
-                    CVEproducts.append(str(cve.vendors).split('\'')[j].split('$')[2])
+        for vendor in tab:
+            CVEvendors.append(vendor)
+            for product in tab[vendor]:
+                CVEproducts.append(product)
         ws['D'+str(i)] = str(CVEvendors)
         ws['E'+str(i)] = str(CVEproducts)
-        # ws['F'+str(i)] = cve.summary
-        # ws['G'+str(i)] = cve.references
-        # ws['H'+str(i)] = cve.cwe
-        # ws['I'+str(i)] = cve.cvss2
-        # ws['J'+str(i)] = cve.cvss3
+        ws['F'+str(i)] = cve.summary
+
+        cwes = get_cwes_details(
+            cve.json["cve"]["problemtype"]["problemtype_data"][0]["description"]
+        )
+        ws['G'+str(i)] = str(cwes)
+
+        ws['H'+str(i)] = cve.cvss2
+        # if cve.cvss2 >= 7.5:
+        #     ws['H'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        # elif cve.cvss2 >= 5.0:
+        #     ws['H'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        # else:
+        #     ws['H'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+        ws['I'+str(i)] = cve.cvss3
+        # if cve.cvss3 >= 7.5:
+        #     ws['I'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        # elif cve.cvss3 >= 5.0:
+        #     ws['I'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        # else:
+        #     ws['I'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+
+
+        ws['J'+str(i)] = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="+cve.cve_id
         i += 1
+
+    ws['A'+str(i)] = "Totals and averages"
+    ws['H'+str(i)] = "=AVERAGE(H2:H"+str(i-1)+")"
+    ws['I'+str(i)] = "=AVERAGE(I2:I"+str(i-1)+")"
+    
 
     wb.save("/"+file_name+".xlsx")
     return send_file("/"+file_name+".xlsx", as_attachment=True, attachment_filename=file_name+".xlsx")
