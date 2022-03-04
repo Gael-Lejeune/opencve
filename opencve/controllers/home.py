@@ -102,9 +102,20 @@ def home():
                 for p in current_user.products
             ]
         )
+        for c in current_user.categories:
+            vendors.extend(
+                [
+                    f"{v.name}" for v in c.vendors
+                ]
+            )
+            vendors.extend(
+                [
+                    f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in c.products
+                ]
+            )
         if not vendors:
             vendors = [None]
-        query = query.filter(Cve.vendors.has_any(array(vendors)))
+        query = query.filter(Cve.vendors.has_any(array(vendors)))     
 
     # List the paginated changes
     changes = (
