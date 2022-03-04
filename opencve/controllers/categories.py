@@ -266,7 +266,7 @@ def generateCategoryReport(category, period):
         cveQuery = Cve.query.filter(
             and_(
                 or_(
-                    # Cve.vendors.contains([product.vendor.name]) if product.vendor else None, # For the moment, the count is also based on the vendor
+                    # Cve.vendors.contains([product.vendor.name]) if vendor else None, # For the moment, the count is also based on the vendor
                     Cve.vendors.contains([product.vendor.name+'$PRODUCT$'+product.name]) if product else None,
                 ),
                 Cve.updated_at >= date,
@@ -340,7 +340,7 @@ def generateCategoryReport(category, period):
         cveQuery = Cve.query.filter(
             and_(
                 or_(
-                    Cve.vendors.contains([vendor.name]) if product.vendor else None, # For the moment, the count is also based on the vendor
+                    Cve.vendors.contains([vendor.name]) if vendor else None, # For the moment, the count is also based on the vendor
                     # Cve.vendors.contains([product.vendor.name+'$PRODUCT$'+product.name]) if product else None,
                 ),
                 Cve.updated_at >= date,
