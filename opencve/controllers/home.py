@@ -146,6 +146,7 @@ def generateUserReport():
     file_name = str(current_user.username) + "_" + str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
     wb = Workbook()
     ws = wb.active
+    ws.title = "Product Report" 
 
     # Print the products of the user and the number of CVEs associated to them
     date = datetime.datetime.now() - datetime.timedelta(days=30)
@@ -215,7 +216,7 @@ def generateUserReport():
             ws['F'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
         elif count and criticalCount/count >= 0.25:
             ws['F'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
-        else:
+        elif count and criticalCount/count > 0.0:
             ws['F'+ str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
 
         i += 1
@@ -226,7 +227,7 @@ def generateUserReport():
     ws['E'+str(i)] = "=AVERAGE(E2:E"+str(i-1)+")"
     ws['F'+str(i)] = "=SUM(F2:F"+str(i-1)+")"
 
-    ws = wb.create_sheet("Vendors")
+    ws = wb.create_sheet("Vendors Report")
     ws["A1"] = "Vendor"
     ws["B1"] = "Number of CVEs since" + str(date.strftime("%Y-%m-%d"))
     ws["C1"] = "CVSS2 Score mean"
@@ -269,7 +270,7 @@ def generateUserReport():
         # else:
         #     ws['D'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
 
-        ws['E'+ str(i)] = cveQuery.filter(
+        criticalCount = cveQuery.filter(
             or_(
                 Cve.cvss2 >= 7.5,
                 Cve.cvss3 >= 7.5
@@ -279,6 +280,14 @@ def generateUserReport():
         cves += cveQuery
         count = cveQuery.count()
         ws['C'+str(i)] = count
+        ws['E'+ str(i)] = criticalCount
+        if count and criticalCount/count >= 0.75:
+            ws['E'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        elif count and criticalCount/count >= 0.25:
+            ws['E'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        elif count and criticalCount/count > 0.0:
+            ws['E'+ str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+
         i += 1
     ws['A'+str(i)] = "Totals and averages"
     ws['B'+str(i)] = "=SUM(B2:B"+str(i-1)+")"
@@ -287,22 +296,25 @@ def generateUserReport():
     ws['E'+str(i)] = "=SUM(E2:E"+str(i-1)+")"
 
     # Print all the CVEs associated to the user
-    ws = wb.create_sheet("CVEs")
-    ws['A1'] = "Creation date"
+    ws = wb.create_sheet("CVEs Report")
+    ws['A1'] = "CVE ID"
     ws['B1'] = "Last update"
-    ws['C1'] = "CVE ID"
+    ws['C1'] = "Creation date"
     ws['D1'] = "Vendor"
     ws['E1'] = "Product"
     ws['F1'] = "Description"
     ws['G1'] = "CWE"
     ws['H1'] = "CVSS2"
     ws['I1'] = "CVSS3"
+    ws['J1'] = "Mitre Link"
+    ws['K1'] = "NVD Link"
 
     i = 2
+    cves.sort(key=lambda x: x.updated_at, reverse=True)
     for cve in cves:
-        ws['A'+str(i)] = cve.created_at.strftime("%Y-%m-%d")
+        ws['A'+str(i)] = cve.cve_id
         ws['B'+str(i)] = cve.updated_at.strftime("%Y-%m-%d")
-        ws['C'+str(i)] = cve.cve_id
+        ws['C'+str(i)] = cve.created_at.strftime("%Y-%m-%d")
         CVEvendors = []
         CVEproducts = []
         tab = convert_cpes(cve.json["configurations"])
@@ -334,7 +346,12 @@ def generateUserReport():
         # else:
         #     ws['I'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
         
-        ws['J'+str(i)] = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="+cve.cve_id
+        # ws['J'+str(i)] = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="+cve.cve_id
+        ws['J'+str(i)] = '=HYPERLINK("https://cve.mitre.org/cgi-bin/cvename.cgi?name=' + cve.cve_id + '")'
+        ws['J'+str(i)].style = 'Hyperlink'
+        # ws['K'+str(i)] = "https://nvd.nist.gov/vuln/detail/"+cve.cve_id
+        ws['K'+str(i)] = '=HYPERLINK("https://nvd.nist.gov/vuln/detail/' + cve.cve_id + '")'
+        ws['K'+str(i)].style = 'Hyperlink'
 
         i += 1
     

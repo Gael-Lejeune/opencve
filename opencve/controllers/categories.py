@@ -247,6 +247,7 @@ def generateCategoryReport(category, period):
     file_name = str(category.name) + "_" + str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
     wb = Workbook()
     ws = wb.active
+    ws.title = "Product Report"
 
     # Print the products of the category and the number of CVEs associated to them
     date = datetime.datetime.now() - datetime.timedelta(days=period)
@@ -314,7 +315,7 @@ def generateCategoryReport(category, period):
             ws['F'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
         elif count and criticalCount/count >= 0.25:
             ws['F'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
-        else:
+        elif count and criticalCount/count > 0.0:
             ws['F'+ str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
             
         i += 1
@@ -326,7 +327,7 @@ def generateCategoryReport(category, period):
     ws['F'+str(i)] = "=SUM(F2:F"+str(i-1)+")"
 
 
-    ws = wb.create_sheet("Vendors")
+    ws = wb.create_sheet("Vendors Report")
     ws["A1"] = "Vendor"
     ws["B1"] = "Number of CVEs since" + str(date.strftime("%Y-%m-%d"))
     ws["C1"] = "CVSS2 Score mean"
@@ -371,7 +372,7 @@ def generateCategoryReport(category, period):
 
 
 
-        ws['E'+ str(i)] = cveQuery.filter(
+        criticalCount = cveQuery.filter(
             or_(
                 Cve.cvss2 >= 7.5,
                 Cve.cvss3 >= 7.5
@@ -381,6 +382,14 @@ def generateCategoryReport(category, period):
         cves += cveQuery
         count = cveQuery.count()
         ws['B'+str(i)] = count
+        ws['E'+ str(i)] = criticalCount
+        if count and criticalCount/count >= 0.75:
+            ws['E'+ str(i)].fill = PatternFill(fgColor="00FF0000", fill_type="solid")
+        elif count and criticalCount/count >= 0.25:
+            ws['E'+ str(i)].fill = PatternFill(fgColor="00FF6600", fill_type="solid")
+        elif count and criticalCount/count > 0.0:
+            ws['E'+ str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
+
         i += 1
     ws['A'+str(i)] = "Totals and averages"
     ws['B'+str(i)] = "=SUM(B2:B"+str(i-1)+")"
@@ -391,10 +400,10 @@ def generateCategoryReport(category, period):
 
 
     # Print all the CVEs associated to the category
-    ws = wb.create_sheet("CVEs")
-    ws['A1'] = "Creation date"
+    ws = wb.create_sheet("CVEs Report")
+    ws['A1'] = "CVE ID"
     ws['B1'] = "Last update"
-    ws['C1'] = "CVE ID"
+    ws['C1'] = "Creation date"
     ws['D1'] = "Vendor"
     ws['E1'] = "Product"
     ws['F1'] = "Description"
@@ -402,13 +411,15 @@ def generateCategoryReport(category, period):
     ws['H1'] = "CVSS2"
     ws['I1'] = "CVSS3"
     ws['J1'] = "Mitre Link"
+    ws['K1'] = "NVD Link"
 
     i = 2
 
+    cves.sort(key=lambda x: x.updated_at, reverse=True)
     for cve in cves:
-        ws['A'+str(i)] = cve.created_at.strftime("%Y-%m-%d")
+        ws['A'+str(i)] = cve.cve_id
         ws['B'+str(i)] = cve.updated_at.strftime("%Y-%m-%d")
-        ws['C'+str(i)] = cve.cve_id
+        ws['C'+str(i)] = cve.created_at.strftime("%Y-%m-%d")
         CVEvendors = []
         CVEproducts = []
         tab = convert_cpes(cve.json["configurations"])
@@ -442,7 +453,12 @@ def generateCategoryReport(category, period):
         #     ws['I'+str(i)].fill = PatternFill(fgColor="00FFFF00", fill_type="solid")
 
 
-        ws['J'+str(i)] = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="+cve.cve_id
+        # ws['J'+str(i)] = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="+cve.cve_id
+        ws['J'+str(i)] = '=HYPERLINK("https://nvd.nist.gov/vuln/detail/' + cve.cve_id + '")'
+        ws['J'+str(i)].style = 'Hyperlink'
+        # ws['K'+str(i)] = "https://nvd.nist.gov/vuln/detail/"+cve.cve_id
+        ws['K'+str(i)] = '=HYPERLINK("https://nvd.nist.gov/vuln/detail/' + cve.cve_id + '")'
+        ws['K'+str(i)].style = 'Hyperlink'
         i += 1
 
     ws['A'+str(i)] = "Totals and averages"
