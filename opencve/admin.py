@@ -346,7 +346,8 @@ class CveModelView(AuthModelView):
     can_edit = False
     can_delete = False
     can_view_details = True
-    column_filters = column_searchable_list = ["cve_id", "summary", "cvss2", "cvss3"]
+    column_filters = ["cve_id", "summary", "cvss2", "cvss3", "updated_at"]
+    column_searchable_list = ["cve_id", "summary", "cvss2", "cvss3"]
     column_list = ("cve_id", "updated_at", "cvss2", "cvss3")
 
 
@@ -356,6 +357,7 @@ class EventModelView(AuthModelView):
     can_edit = False
     can_delete = False
     can_view_details = True
+    column_filters = column_searchable_list = ["type", "created_at"]
     column_list = ("cve", "type", "created_at")
 
 
@@ -364,6 +366,7 @@ class VendorModelView(AuthModelView):
     create_modal = False
     edit_modal = False
     can_view_details = True
+    column_filters = column_searchable_list = ["name"]
     column_list = ["name", "created_at"]
 
 
@@ -380,4 +383,5 @@ class ProductModelView(AuthModelView):
     create_modal = False
     edit_modal = False
     can_view_details = True
+    column_filters = column_searchable_list = ["name"]
     column_list = ["name", "vendor", "created_at"]
