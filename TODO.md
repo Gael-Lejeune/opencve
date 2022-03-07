@@ -4,7 +4,7 @@
 
 - **Pensez à vérifier les TODO présents dans le code (avec grep ou une extension d'IDE)**
 
-- Ajouter un outil pour faciliter à l'utilisateur (ex: le consultant) l'ajout des Tag dans les fichiers excels permettant l'import du matériel des categories ?
+- Ajouter un outil pour faciliter à l'utilisateur l'ajout des Tag dans les fichiers excels permettant l'import du matériel des categories ?
   - Le faire via une API ? Ou toute autre solution permettant d'automatiser la génération de la colonne Tag dans Excel
 
 - Ajout de suivi du traitement des cve par la category :
@@ -16,8 +16,6 @@
 - Possibilité de rentrer les informations de calcul de criticité en fonction des information environnement de la category
 
 - Regarder régulièrement les ajouts sur le github de OpenCVE [ici](https://github.com/opencve/opencve).
-
-- FIX : Il est impossible de modifier les abonnements d'une category si on y est pas abonné.
 
 - Trouver un moyen de ne pas bloquer la page de category lors de l'import via fichier excel.
   - Regarder comment faire du multi-threeading avec flask.
@@ -38,8 +36,6 @@
 - Possibility to enter the information of severity calculation according to the environment information of the category
 
 - Look regularly the additions on the github of OpenCVE [here](https://github.com/opencve/opencve).
-
-- FIX : It is impossible to modify the subscriptions of a category if you are not subscribed.
 
 - Find a way to not block the category page when importing via Excel file.
   - Look how to do multi-threading with flask.

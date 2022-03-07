@@ -24,20 +24,49 @@
                         {% if category.vendors %}
                         <table class="table table-hover table-striped">
                             <tbody>
+                                <tr>
+                                    <th>Vendor</th>
+                                    <th class="text-center">Personnal Actions</th>
+                                    <th class="text-center"></th>
+                                </tr>
                                 {% for vendor in category.vendors %}
                                 <tr {% if loop.first %}style="border-top: 0px;" {% endif %}>
-                                    <td style="border-top: 0px;">{{ vendor.name |  humanize }}</td>
-                                    <td class="pull-right" style="border-top: 0px;">
-                                        {% if vendor in category.vendors %}
-                                        <button class="btn btn-danger btn-xs    pull-right subscribe"
-                                                id="unsubscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Remove
-                                        </button>
-                                        {% else %}
-                                        <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
-                                                id="subscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Add
-                                        </button>
-                                        {% endif %}
+                                    <td style="border-top: 0px;">
+                                        <a href="{{ url_for('main.vendors', vendor=vendor.name) }}">{{ vendor.name | humanize}}</a>
                                     </td>
+                                    <td class="text-center" style="border-top: 0px;">
+                                        <div class="btn-group">
+                                            {% if current_user.is_authenticated %}
+                                            {% if vendor in current_user.vendors %}
+                                            <button class="btn btn-danger btn-xs subscribe"
+                                                    id="unsubscribe_vendor_{{ vendor.id }}" type="button">Unsubscribe
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-default btn-xs subscribe"
+                                                    id="subscribe_vendor_{{ vendor.id }}" type="button"><i class="fa fa-bell-o"></i> Subscribe
+                                            </button>
+                                            {% endif %}
+                                            {% else %}
+                                            <a class="btn btn-default btn-xs"
+                                               href="{{ url_for('user.login', next=request.url) }}" data-toggle="tooltip"
+                                               data-container="body" title="You must be signed in to subscribe"><i class="fa fa-bell-o"></i> Subscribe</a>
+                                            {% endif %}
+                                            <a href="{{ url_for('main.cves', vendor=vendor.name) }}" class="btn btn-default btn-xs"><i class="fa fa-shield"></i> CVE</a>
+                                        </div>
+                                    </td>
+                                    {% if current_user in category.users %}
+                                        <td class="pull-right" style="border-top: 0px;">
+                                            {% if vendor in category.vendors %}
+                                            <button class="btn btn-danger btn-xs    pull-right subscribe"
+                                                    id="unsubscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Remove
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
+                                                    id="subscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Add
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -60,20 +89,49 @@
                         {% if category.products %}
                         <table class="table table-hover table-striped">
                             <tbody>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Personnal Actions</th>
+                                    <th class="text-center"></th>
+                                </tr>
                             {% for product in category.products %}
                             <tr {% if loop.first %}style="border-top: 0px;" {%  endif %}>
-                                <td style="border-top: 0px;">{{ product.name |  humanize }}</td>
-                                <td class="pull-right" style="border-top: 0px;">
-                                    {% if product in category.products %}
-                                    <button class="btn btn-danger btn-xs    pull-right subscribe"
-                                            id="unsubscribe_categoryproduct_{{category.id}}+{{ product.id }}" type="button">Remove
-                                    </button>
-                                    {% else %}
-                                    <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
-                                            id="subscribe_categoryproduct_{{category.id}}+{{ product.id }}" type="button">Add
-                                    </button>
-                                    {% endif %}
+                                <td style="border-top: 0px;">
+                                    <a href="{{ url_for('main.vendors', vendor=product.vendor.name) }}">{{ product.name |  humanize }}</a>
                                 </td>
+                                <td class="text-center" style="border-top: 0px;">
+                                    <div class="btn-group">
+                                        {% if current_user.is_authenticated %}
+                                        {% if product in current_user.products %}
+                                        <button class="btn btn-danger btn-xs subscribe"
+                                                id="unsubscribe_product_{{ product.id }}" type="button">Unsubscribe
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-default btn-xs subscribe"
+                                                id="subscribe_product_{{ product.id }}" type="button"><i class="fa fa-bell-o"></i> Subscribe
+                                        </button>
+                                        {% endif %}
+                                        {% else %}
+                                        <a class="btn btn-default btn-xs"
+                                           href="{{ url_for('user.login', next=request.url) }}" data-toggle="tooltip"
+                                           data-container="body" title="You must be signed in to subscribe"><i class="fa fa-bell-o"></i> Subscribe</a>
+                                        {% endif %}
+                                        <a href="{{ url_for('main.cves', vendor=product.vendor.name, product=product.name) }}" class="btn btn-default btn-xs"><i class="fa fa-shield"></i> CVE</a>
+                                    </div>
+                                </td>
+                                {% if current_user in category.users %}
+                                    <td class="pull-right" style="border-top: 0px;">
+                                        {% if product in category.products %}
+                                        <button class="btn btn-danger btn-xs    pull-right subscribe"
+                                                id="unsubscribe_categoryproduct_{{category.id}}+{{ product.id }}" type="button">Remove
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
+                                                id="subscribe_categoryproduct_{{category.id}}+{{ product.id }}" type="button">Add
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
                             </tbody>
