@@ -3,7 +3,7 @@ from ctypes import sizeof
 import sys
 from difflib import get_close_matches
 from pathlib import Path
-
+from opencve.extensions import cel
 import openpyxl
 from openpyxl.styles import PatternFill
 from flask import abort, send_file
@@ -178,10 +178,14 @@ def delete_category(category):
         error(e)
         return -1
 
-
-def read_excel(category, xlsx_file):
+@cel.task(bind=True)
+def read_excel(self, category_name, path_to_file):
+    cel.app.app_context().push()
     """Read an xlsx file and expects from it to have columns named vendor, product, version and tag
     Those names shall be found in the first three rows"""
+    # with app.app_context():
+    category = Category.query.filter_by(name=category_name).first()
+    xlsx_file = open(path_to_file, "rb")
     global PRODUCTS
     global VENDORS
     VENDORS = [x.name for x in Vendor.query.all()]

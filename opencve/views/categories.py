@@ -1,7 +1,9 @@
 from asyncio.log import logger
+from importlib.resources import path
 import os
 import uuid
 
+from celery import Celery
 from flask import current_app as app
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -15,7 +17,7 @@ from opencve.models.categories import Category
 from opencve.utils import get_categories_letters
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = '/app/venv/lib/python3.7/site-packages/opencve/data'
+UPLOAD_FOLDER = '/tmp/shared/'
 ALLOWED_EXTENSIONS = {'xlsx'}
 
 
@@ -112,12 +114,14 @@ def upload_file(category_name):
             filename = str(uuid.uuid4())+"."+str(extensions)
             app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
             path_to_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            # file.save(secure_filename(path_to_file))
-            if read_excel(category, file) == -1:
+            file.save(path_to_file)
+            file.save(secure_filename(path_to_file))
+            file.close()
+            if read_excel.delay(category_name=category.name, path_to_file=path_to_file) == -1:
                 flash(
                     'Excel file not containing "vendor", "product", "version" and "tag" rows')
             else:
-                flash(f'File Uploaded and products added to category {category}')
+                flash('File Uploaded, the product will soon appear in the category subscriptions.\n Please keep in mind that this may take a while depending on the size of the file you uploaded.')
             return redirect(request.url)
     else:
         return render_template(

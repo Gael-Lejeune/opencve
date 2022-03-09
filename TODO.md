@@ -17,8 +17,6 @@
 
 - Regarder régulièrement les ajouts sur le github de OpenCVE [ici](https://github.com/opencve/opencve).
 
-- Trouver un moyen de ne pas bloquer la page de category lors de l'import via fichier excel.
-  - Regarder comment faire du multi-threeading avec flask.
 ---
 ## English
 
@@ -36,6 +34,3 @@
 - Possibility to enter the information of severity calculation according to the environment information of the category
 
 - Look regularly the additions on the github of OpenCVE [here](https://github.com/opencve/opencve).
-
-- Find a way to not block the category page when importing via Excel file.
-  - Look how to do multi-threading with flask.
