@@ -161,12 +161,13 @@ def edit_category_name(category, name):
     name = str(name).lower()
     if Category.query.filter_by(name=name).first():
         return -1
-    category.name = name
-    try:
-        db.session.commit()
-    except IntegrityError as e:
-        error(e)
-        return -1
+    else:
+        category.name = name
+        try:
+            db.session.commit()
+        except IntegrityError as e:
+            error(e)
+            return -1
 
 
 def delete_category(category):
@@ -179,7 +180,7 @@ def delete_category(category):
         return -1
 
 @cel.task(bind=True)
-def read_excel(self, category_name, path_to_file):
+def import_from_excel(self, category_name, path_to_file):
     cel.app.app_context().push()
     """Read an xlsx file and expects from it to have columns named vendor, product, version and tag
     Those names shall be found in the first three rows"""
@@ -214,7 +215,6 @@ def read_excel(self, category_name, path_to_file):
                 tag_col = col
 
     if vendor_col is None or product_col is None or version_col is None:
-        error("[READ_EXCEL] Column format is not good")
         return -1
 
     # For every row, we check if the value is already in the data list
@@ -470,5 +470,5 @@ def generateCategoryReport(category, period):
     ws['I'+str(i)] = "=AVERAGE(I2:I"+str(i-1)+")"
     
 
-    wb.save("/"+file_name+".xlsx")
-    return send_file("/"+file_name+".xlsx", as_attachment=True, attachment_filename=file_name+".xlsx")
+    wb.save("/tmp/shared/"+file_name+".xlsx")
+    return send_file("/tmp/shared/"+file_name+".xlsx", as_attachment=True, attachment_filename=file_name+".xlsx")

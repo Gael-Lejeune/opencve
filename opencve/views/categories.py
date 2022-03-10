@@ -11,7 +11,7 @@ from flask_wtf import FlaskForm
 from opencve.commands import info
 from opencve.controllers.categories import (CategoryController, create_category,
                                          delete_category, edit_category_name,
-                                         read_excel, generateCategoryReport)
+                                         import_from_excel, generateCategoryReport)
 from opencve.controllers.main import main
 from opencve.models.categories import Category
 from opencve.utils import get_categories_letters
@@ -66,15 +66,15 @@ def edit_name(category_name):  # Specified Category page when the name modifying
     if request.method == 'POST' and request.form.get('new_category_name'):
         new_category_name = request.form.get('new_category_name')
         if edit_category_name(category, str(new_category_name).lower()) == -1:
+            logger.warn("already exists")
             flash(f"Category {new_category_name} already exists.")
         else:
             return redirect(url_for('main.category', category_name=new_category_name))
-    else:
-        return render_template(
-            "category.html",
-            category=category,
-            form=FlaskForm()
-        )
+    return render_template(
+        "category.html",
+        category=category,
+        form=FlaskForm()
+    )
 
 
 @main.route("/category/<category_name>/delete")
@@ -117,12 +117,15 @@ def upload_file(category_name):
             file.save(path_to_file)
             file.save(secure_filename(path_to_file))
             file.close()
-            if read_excel.delay(category_name=category.name, path_to_file=path_to_file) == -1:
-                flash(
-                    'Excel file not containing "vendor", "product", "version" and "tag" rows')
+            if import_from_excel.delay(category.name, path_to_file) == -1:
+                flash('Excel file not containing "vendor", "product", "version" and "tag" rows')
             else:
-                flash('File Uploaded, the product will soon appear in the category subscriptions.\n Please keep in mind that this may take a while depending on the size of the file you uploaded.')
-            return redirect(request.url)
+                flash('File Uploaded, if the format is good and all the required columns are in the first three rows, the product will soon appear in the category subscriptions.\n Please keep in mind that this may take a while depending on the size of the file you uploaded.')
+            return render_template(
+                "category.html",
+                category=category,
+                form=FlaskForm()
+            )
     else:
         return render_template(
             "category.html",
