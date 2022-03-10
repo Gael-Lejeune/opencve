@@ -2,11 +2,16 @@ from asyncio.log import logger
 from importlib.resources import path
 import os
 import uuid
+from opencve.models.changes import Change
 
 from celery import Celery
+from sqlalchemy.orm import aliased, joinedload
+from opencve.constants import PRODUCT_SEPARATOR
+from sqlalchemy.dialects.postgresql import array
 from flask import current_app as app
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from opencve.models.cve import Cve
 from flask_wtf import FlaskForm
 from opencve.commands import info
 from opencve.controllers.categories import (CategoryController, create_category,
@@ -51,9 +56,47 @@ def categories():  # Categories list
 @login_required
 def category(category_name):  # Specified Category page
     category = Category.query.filter_by(name=category_name).first()
+    
+    # Handle the page parameter
+    page = request.args.get("page", type=int, default=1)
+    page = 1 if page < 1 else page
+    per_page = app.config["ACTIVITIES_PER_PAGE"]
+    
+    # Build the query to fetch the last changes
+    query = (
+        Change.query.options(joinedload("cve"))
+        .options(joinedload("events"))
+        .filter(Change.cve_id == Cve.id)
+        .filter(Change.events.any())
+    )
+
+    vendors = [v.name for v in category.vendors]
+    vendors.extend(
+        [
+            f"{v.name}" for v in category.vendors
+        ]
+    )
+    vendors.extend(
+        [
+            f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in category.products
+        ]
+    )
+    if not vendors:
+        vendors = [None]
+    query = query.filter(Cve.vendors.has_any(array(vendors)))     
+
+    # List the paginated changes
+    changes = (
+        query.order_by(Change.created_at.desc())
+        .limit(per_page)
+        .offset((page - 1) * per_page)
+        .all()
+    )
 
     return render_template(
         "category.html",
+        changes=changes,
+        page=page,
         category=category,
         form=FlaskForm()
     )
