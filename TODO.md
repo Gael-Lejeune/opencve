@@ -20,15 +20,11 @@
 - Vérifier le certificat https
 
 - Améliorer l'API
-  - Ajouter un paramètre pour indiquer le nombre de cve à récupérer pour une categorie donnée
-  - Ajouter des options de requête
-    - Afficher les cves critiques d'une categorie
-    - Afficher les cves en fonction d'une date
 
 - Doc
   - Documentation de l'API
   - Documentation de l'utilisation de l'application
-  - Comment update les elements suivis ?
+    - Comment update les elements suivis ?
 ---
 ## English
 
@@ -50,10 +46,6 @@
 - Check the https certificate
 
 - Improve the API
-  - Add a parameter to indicate the number of CVEs to retrieve for a given category
-  - Add options of query
-    - Display the critical CVEs of a category
-    - Display the CVEs according to a date
 
 - Doc
   - API documentation
