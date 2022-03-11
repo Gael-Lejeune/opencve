@@ -44,9 +44,8 @@ class CategoryResource(BaseResource):
 class CategoryCveResource(BaseResource):
     @marshal_with(cves_fields)
     def get(self, name):
-        period = request.args.get("period")
-        if period is None:
-            period = 30
+        period = request.args.get("period", 30)
+        criticality = request.args.get("criticality", 0.0)
         date = datetime.datetime.now() - datetime.timedelta(days=int(period))
         category = CategoryController.get({"name": name})
         vendors = []
@@ -64,6 +63,10 @@ class CategoryCveResource(BaseResource):
             and_(
                 Cve.vendors.has_any(array(vendors)),
                 Cve.updated_at >= date,
+                or_(
+                    Cve.cvss2 >= float(criticality),
+                    Cve.cvss3 >= float(criticality),
+                )
                 )
             ).order_by(Cve.updated_at.desc()).all() 
 
