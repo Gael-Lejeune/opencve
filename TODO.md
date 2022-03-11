@@ -17,7 +17,7 @@
 
 - Regarder régulièrement les ajouts sur le github de OpenCVE [ici](https://github.com/opencve/opencve).
 
-- Certificat https
+- Vérifier le certificat https
 
 - Améliorer l'API
   - Ajouter un paramètre pour indiquer le nombre de cve à récupérer pour une categorie donnée
@@ -46,3 +46,16 @@
 - Possibility to enter the information of severity calculation according to the environment information of the category
 
 - Look regularly the additions on the github of OpenCVE [here](https://github.com/opencve/opencve).
+
+- Check the https certificate
+
+- Improve the API
+  - Add a parameter to indicate the number of CVEs to retrieve for a given category
+  - Add options of query
+    - Display the critical CVEs of a category
+    - Display the CVEs according to a date
+
+- Doc
+  - API documentation
+  - Application documentation
+  - How to update the elements followed ?
