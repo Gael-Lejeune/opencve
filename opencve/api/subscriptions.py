@@ -17,6 +17,11 @@ product_list_fields = {
     "parent_vendor": fields.String(attribute="vendor.name"),
 }
 
+category_list_fields = {
+    "name": fields.String(attribute="name"),
+    "human_name": HumanizedNameField(attribute="name"),
+}
+
 
 class SubscriptionListRessourceVendor(BaseResource):
     @marshal_with(vendor_list_fields)
@@ -34,3 +39,11 @@ class SubscriptionListRessourceProduct(BaseResource):
             username=request.authorization.get("username")
         ).first()
         return user.products
+
+class SubscriptionListRessourceCategory(BaseResource):
+    @marshal_with(product_list_fields)
+    def get(self):
+        user = User.query.filter_by(
+            username=request.authorization.get("username")
+        ).first()
+        return user.categories
