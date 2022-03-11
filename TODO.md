@@ -17,6 +17,18 @@
 
 - Regarder régulièrement les ajouts sur le github de OpenCVE [ici](https://github.com/opencve/opencve).
 
+- Certificat https
+
+- Améliorer l'API
+  - Ajouter un paramètre pour indiquer le nombre de cve à récupérer pour une categorie donnée
+  - Ajouter des options de requête
+    - Afficher les cves critiques d'une categorie
+    - Afficher les cves en fonction d'une date
+
+- Doc
+  - Documentation de l'API
+  - Documentation de l'utilisation de l'application
+  - Comment update les elements suivis ?
 ---
 ## English
 
