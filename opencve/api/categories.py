@@ -13,6 +13,9 @@ from opencve.models.categories import Category
 from opencve.models.cve import Cve
 from opencve.constants import PRODUCT_SEPARATOR
 from sqlalchemy.dialects.postgresql import array
+from sqlalchemy import and_, or_, func
+import datetime
+
 
 
 
@@ -41,6 +44,10 @@ class CategoryResource(BaseResource):
 class CategoryCveResource(BaseResource):
     @marshal_with(cves_fields)
     def get(self, name):
+        period = request.args.get("period")
+        if period is None:
+            period = 30
+        date = datetime.datetime.now() - datetime.timedelta(days=int(period))
         category = CategoryController.get({"name": name})
         vendors = []
         vendors.extend(
@@ -53,7 +60,12 @@ class CategoryCveResource(BaseResource):
                     f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in category.products
                 ]
             )
-        cves = Cve.query.filter(Cve.vendors.has_any(array(vendors))).order_by(Cve.updated_at.desc()).all() 
+        cves = Cve.query.filter(
+            and_(
+                Cve.vendors.has_any(array(vendors)),
+                Cve.updated_at >= date,
+                )
+            ).order_by(Cve.updated_at.desc()).all() 
 
         logger.warn(cves)
         return cves
