@@ -161,9 +161,9 @@ def upload_file(category_name):
             file.save(secure_filename(path_to_file))
             file.close()
             if import_from_excel.delay(category.name, path_to_file) == -1:
-                flash('Excel file not containing "vendor", "product", "version" and "tag" rows')
+                flash('Excel file not containing "tag" row')
             else:
-                flash('File Uploaded, if the format is good and all the required columns are in the first three rows, the product will soon appear in the category subscriptions.\n Please keep in mind that this may take a while depending on the size of the file you uploaded.')
+                flash('File Uploaded, if the format is good and the required column is in the first three rows, the product will soon appear in the category subscriptions.\n Please keep in mind that this may take a while depending on the size of the file you uploaded.')
             return render_template(
                 "category.html",
                 category=category,

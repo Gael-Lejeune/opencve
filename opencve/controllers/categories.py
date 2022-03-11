@@ -76,8 +76,6 @@ def find_db_name(Model, name):
     Made to work only with Vendor and Product"""
     try:
         name = dehumanize_filter(name)
-        info("[FIND_DB_NAME] Searching for name : " + name)
-
         human_names = VENDORS if Model is Vendor else PRODUCTS
 
         db_name = get_close_matches(name, human_names, n=1, cutoff=0.6)
@@ -85,58 +83,29 @@ def find_db_name(Model, name):
             db_name = db_name[0]
         else:
             raise LookupError
-
-        info("[FIND_DB_NAME] Found db_name : " + db_name)
         return db_name
     except LookupError:
-        error(name + " not found in db names")
-        return ""
+        return
     except Exception as e:
         error(e)
-        return ""
+        return
 
 
-def find_product_id(vendor, product, version):
-    """Returns a product id or None if not found
-    Uses find_db_name, a closest match searching algorithm"""
-    vendor_query = Vendor.query.filter_by(
-        name=find_db_name(Vendor, vendor)).first()
-    if vendor_query is None:
-        return info(f"[FIND_PRODUCT_ID] {vendor} does not exists in Vendors")
-    vendor_query = vendor_query.id
-
-    product_query = Product.query.filter_by(name=find_db_name(
-        Product, version), vendor_id=vendor_query).first()
-    if product_query is None:
-        return info(f"[FIND_PRODUCT_ID] {product} does not exists in Products")
-
-    return product_query.id
-
-
-def add_product(category, vendor, product, version, tag):
+def add_product(category, tag):
     """Add Product to category"""
-    category_query = Category.query.filter_by(name=category.name).first().id
-    if not category_query:
-        return info(f"[ADD_PRODUCT] {category} does not exists in Categories")
 
-    if tag is None:
-        product_id = find_product_id(vendor, product, version)
-        if product_id is None:
-            return
+    product = Product.query.filter_by(name=tag).first()
+    if product in category.products or product is None:
+        return
     else:
-        product_query = Product.query.filter_by(name=str(tag)).first()
-        if product_query is None:
-            return info(f"[ADD_PRODUCT] {tag} does not exists in Products")
-        product_id = product_query.id
-
-    # FOR TESTING ONLY, NEED TO CHECK THE INPUT OR CHANGE THE USED METHOD //TODO
-    existance = db.session.execute("SELECT 1 FROM categories_products WHERE category_id=('"+str(
-        category_query)+"') and product_id=('"+str(product_id)+"')").first()
-    if existance:
-        return info(f"[ADD_PRODUCT] {product} already exists in category {category}")
-    db.session.execute("INSERT INTO categories_products(category_id,product_id) VALUES (('" +
-                       str(category_query)+"'),('"+str(product_id)+"'))")
-    db.session.commit()
+        category.products.append(product)
+        try:
+            db.session.commit()
+            info(f"[ADD_PRODUCT] {product.name} added to category {category}")
+            return
+        except IntegrityError as e:
+            error(e)
+            return -1
 
 
 def create_category(name):
@@ -187,16 +156,12 @@ def import_from_excel(self, category_name, path_to_file):
     # with app.app_context():
     category = Category.query.filter_by(name=category_name).first()
     xlsx_file = open(path_to_file, "rb")
-    global PRODUCTS
-    global VENDORS
-    VENDORS = [x.name for x in Vendor.query.all()]
-    PRODUCTS = [x.name for x in Product.query.all()]
     wb_obj = openpyxl.load_workbook(xlsx_file)
     sheet = wb_obj.active
     data = []
-    vendor_col = None
-    product_col = None
-    version_col = None
+    # vendor_col = None
+    # product_col = None
+    # version_col = None
     tag_col = None
     min_value_index = None
     max_value_index = sheet.max_row
@@ -204,43 +169,25 @@ def import_from_excel(self, category_name, path_to_file):
     for row in range(1, 3):  # To be sure, we check the 3 firsts rows
         tag_col = None
         for col in range(1, sheet.max_column):
-            if str(sheet[row][col].value).lower() == "vendor":
-                vendor_col = col
-                min_value_index = row+1
-            elif str(sheet[row][col].value).lower() == "product":
-                product_col = col
-            elif str(sheet[row][col].value).lower() == "version":
-                version_col = col
-            elif str(sheet[row][col].value).lower() == "tag":
+            if str(sheet[row][col].value).lower() == "tag":
                 tag_col = col
-
-    if vendor_col is None or product_col is None or version_col is None:
-        return -1
+                min_value_index = row+1
 
     # For every row, we check if the value is already in the data list
     for i in range(min_value_index, max_value_index):
-        if sheet[i][vendor_col].value != None and sheet[i][product_col].value != None and sheet[i][version_col].value != None:
-            d = str(sheet[i][vendor_col].value).lower()+":"+str(sheet[i][product_col].value).lower()+":"+str(sheet[i][version_col].value).lower()
-            if tag_col != None:
-                tag = sheet[i][tag_col].value
-            else:
-                tag = None
-            if (d, tag) not in data:
-                data.append((d, tag))
+        if tag_col != None:
+            tag = sheet[i][tag_col].value
+        else:
+            tag = None
+        if (tag) not in data:
+            data.append(tag)
     ite = 0
-    for (i, tag) in data:
+    for tag in data:
         ite += 1
-        # For debug purpose
-        # info("[READ_EXCEL] Iteration : " + str(ite))
-        # info("[READ_EXCEL] vendor :" + str(i.split(":")[0]))
-        # info("[READ_EXCEL] product :" + str(i.split(":")[1]))
-        # info("[READ_EXCEL] version :" + str(i.split(":")[2]))
-        add_product(category, str(i.split(":")[0]), str(
-            i.split(":")[1]), str(i.split(":")[2]), tag)
-
-    # Empty the arrays
-    VENDORS = []
-    PRODUCTS = []
+        info(f"[IMPORT_FROM_EXCEL] {ite}/{len(data)}")
+        info(f"[IMPORT_FROM_EXCEL] {tag}")
+        add_product(category, tag)
+    return
 
 
 def generateCategoryReport(category, period):
