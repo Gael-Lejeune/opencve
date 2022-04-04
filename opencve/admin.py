@@ -368,6 +368,8 @@ class VendorModelView(AuthModelView):
     can_view_details = True
     column_filters = column_searchable_list = ["name"]
     column_list = ["name", "created_at"]
+    column_details_list = ["name", "users", "created_at", "updated_at"]
+    column_formatters_detail = dict(users=lambda v, c, m, p: m.users)
 
 
 class CategoryModelView(AuthModelView):
@@ -385,3 +387,5 @@ class ProductModelView(AuthModelView):
     can_view_details = True
     column_filters = column_searchable_list = ["name"]
     column_list = ["name", "vendor", "created_at"]
+    column_details_list = ["vendor", "name", "users", "created_at", "updated_at"]
+    column_formatters_detail = dict(users=lambda v, c, m, p: m.users)
