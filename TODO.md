@@ -17,8 +17,6 @@
 
 - Regarder régulièrement les ajouts sur le github de OpenCVE [ici](https://github.com/opencve/opencve).
 
-- Vérifier le certificat https
-
 - Améliorer l'API
 
 - Doc
@@ -42,8 +40,6 @@
 - Possibility to enter the information of severity calculation according to the environment information of the category
 
 - Look regularly the additions on the github of OpenCVE [here](https://github.com/opencve/opencve).
-
-- Check the https certificate
 
 - Improve the API
 

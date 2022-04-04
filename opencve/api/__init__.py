@@ -17,6 +17,7 @@ from opencve.api.categories import CategoryListResource, CategoryResource, Categ
 from opencve.api.subscriptions import (
     SubscriptionListRessourceVendor,
     SubscriptionListRessourceProduct,
+    SubscriptionListRessourceCategory
 )
 
 
@@ -33,6 +34,7 @@ api.add_resource(CveResource, "/cve/<string:id>")
 api.add_resource(ReportListResource, "/reports")
 api.add_resource(SubscriptionListRessourceVendor, "/account/subscriptions/vendors")
 api.add_resource(SubscriptionListRessourceProduct, "/account/subscriptions/products")
+api.add_resource(SubscriptionListRessourceCategory, "/account/subscriptions/categories")
 api.add_resource(ReportResource, "/reports/<string:link>")
 api.add_resource(AlertListResource, "/reports/<string:link>/alerts")
 api.add_resource(AlertResource, "/reports/<string:link>/alerts/<string:id>")

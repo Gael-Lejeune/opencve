@@ -59,6 +59,9 @@ class CategoryCveResource(BaseResource):
                     f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in category.products
                 ]
             )
+        if not vendors:
+            return []
+
         cves = Cve.query.filter(
             and_(
                 Cve.vendors.has_any(array(vendors)),
@@ -70,8 +73,10 @@ class CategoryCveResource(BaseResource):
                 )
             ).order_by(Cve.updated_at.desc()).all() 
 
-        logger.warn(cves)
-        return cves
+        if not cves:
+            return []
+        else:
+            return cves
 
 class CategoryVendorsResource(BaseResource):
     @marshal_with(vendor_list_fields)

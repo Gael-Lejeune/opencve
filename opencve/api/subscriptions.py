@@ -41,7 +41,7 @@ class SubscriptionListRessourceProduct(BaseResource):
         return user.products
 
 class SubscriptionListRessourceCategory(BaseResource):
-    @marshal_with(product_list_fields)
+    @marshal_with(category_list_fields)
     def get(self):
         user = User.query.filter_by(
             username=request.authorization.get("username")
