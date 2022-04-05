@@ -23,6 +23,10 @@
   - Documentation de l'API
   - Documentation de l'utilisation de l'application
     - Comment update les elements suivis ?
+
+- Vérifier si tout les produits cités sont bien vulnérables ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+- Ajouter les version du l'appli touchée par une CVE ([Github Issue](https://github.com/opencve/opencve/issues/184))
 ---
 ## English
 
@@ -47,3 +51,7 @@
   - API documentation
   - Application documentation
   - How to update the elements followed ?
+
+- Verify if all the products cited are vulnerable ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+- Add the version of the application touched by a CVE ([Github Issue](https://github.com/opencve/opencve/issues/184))
