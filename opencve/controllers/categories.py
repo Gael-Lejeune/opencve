@@ -405,7 +405,7 @@ def generateCategoryReport(category, period):
 
 
         # ws['J'+str(i)] = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="+cve.cve_id
-        ws['J'+str(i)] = '=HYPERLINK("https://nvd.nist.gov/vuln/detail/' + cve.cve_id + '")'
+        ws['J'+str(i)] = '=HYPERLINK("https://cve.mitre.org/cgi-bin/cvename.cgi?name=' + cve.cve_id + '")'
         ws['J'+str(i)].style = 'Hyperlink'
         # ws['K'+str(i)] = "https://nvd.nist.gov/vuln/detail/"+cve.cve_id
         ws['K'+str(i)] = '=HYPERLINK("https://nvd.nist.gov/vuln/detail/' + cve.cve_id + '")'
