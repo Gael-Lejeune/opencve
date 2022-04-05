@@ -36,7 +36,7 @@ class CategoryListResource(BaseResource):
 
 
 class CategoryResource(BaseResource):
-    @marshal_with(category_list_fields)
+    @marshal_with(category_fields)
     def get(self, name):
         return CategoryController.get({"name": name})
 
