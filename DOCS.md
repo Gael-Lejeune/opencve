@@ -45,7 +45,33 @@ If you want to learn more, you can check it [here](https://github.com/Gael-Lejeu
 ```
 
 ## api
-//TODO
+This folder contains the code for the API of the application.
+The API is used to retrieve data from the database via a REST API.
+You can find the official API documentation [here](https://docs.opencve.io/api/).
+In this fork, the API also includes the category system.
+
+You can request it by using the following URL :
+```
+http://<your_listening_ip>:<your_port>/api/categories
+
+http://<your_listening_ip>:<your_port>/api/categories/<category_name>
+```
+You can also request the products or vendors of a category by using the following URL :
+```
+http://<your_listening_ip>:<your_port>/api/categories/<category_name>/products
+
+http://<your_listening_ip>:<your_port>/api/categories/<category_name>/vendors
+```
+And as for the products and vendors, you can request the CVEs of the category by using the following URL :
+```
+http://<your_listening_ip>:<your_port>/api/categories/<category_name>/cve
+```
+
+You can also use parameters to filter the results as follows :
+```
+http://<your_listening_ip>:<your_port>/api/categories/<category_name>/cve?criticality=9.0&period=2
+```
+Where criticality is the criticality of the CVEs (based on the CVSS score), and period is the number of days since the last update of the CVEs.
 ## Commands
 This folder contains python scripts that are used to interact with the application from the command line.   
 An example is create_user.py that is used to create a user:
@@ -319,5 +345,4 @@ This will create a list of users that will receive emails.
 
 # Encountred problems
 - When you want to upgrade the DB, you will sadly have to make clean and thus re-import the data. The "import-light" function may be optimized to make it even faster and thus help with this problem.
-- Setting up the SMTP server is tricky, the problem is that the "email_from" and "smtp_username" should be the same else it won't work. The logs didn't explain this and I had to do alot of testing to figure it out.
 - Please use info() or logger.info() to debug or display logs as print() may not display correctly
