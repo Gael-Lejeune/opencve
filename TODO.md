@@ -26,7 +26,7 @@
 
 - Vérifier si tout les produits cités sont bien vulnérables ([Github Issue](https://github.com/opencve/opencve/issues/184))
 
-- Ajouter les version du l'appli touchée par une CVE ([Github Issue](https://github.com/opencve/opencve/issues/184))
+- Ajouter les version du l'appli touchée par une CVE ([Github Issue](https://github.com/opencve/opencve/issues/180))
 ---
 ## English
 
