@@ -176,10 +176,14 @@ def import_from_excel(self, category_name, path_to_file):
     # For every row, we check if the value is already in the data list
     for i in range(min_value_index, max_value_index):
         if tag_col != None:
-            tag = sheet[i][tag_col].value
+            tag = str(sheet[i][tag_col].value)
+            if ":" in tag:
+                info(f"[IMPORT_FROM_EXCEL] : in {tag}")
+                tag = tag.split(":")[4]
+                info(f"[IMPORT_FROM_EXCEL] tag changed to {tag}")
         else:
             tag = None
-        if (tag) not in data:
+        if tag not in data:
             data.append(tag)
     ite = 0
     for tag in data:
