@@ -167,20 +167,22 @@ def import_from_excel(self, category_name, path_to_file):
     max_value_index = sheet.max_row
 
     for row in range(1, 3):  # To be sure, we check the 3 firsts rows
-        tag_col = None
-        for col in range(1, sheet.max_column):
+        for col in range(0, sheet.max_column):
             if str(sheet[row][col].value).lower() == "tag":
                 tag_col = col
                 min_value_index = row+1
+                break
 
     # For every row, we check if the value is already in the data list
+    if min_value_index is None:
+        return -1
     for i in range(min_value_index, max_value_index):
         if tag_col != None:
             tag = str(sheet[i][tag_col].value)
             if ":" in tag:
-                info(f"[IMPORT_FROM_EXCEL] : in {tag}")
+                # info(f"[IMPORT_FROM_EXCEL] : in {tag}")
                 tag = tag.split(":")[4]
-                info(f"[IMPORT_FROM_EXCEL] tag changed to {tag}")
+                # info(f"[IMPORT_FROM_EXCEL] tag changed to {tag}")
         else:
             tag = None
         if tag not in data:
@@ -188,8 +190,8 @@ def import_from_excel(self, category_name, path_to_file):
     ite = 0
     for tag in data:
         ite += 1
-        info(f"[IMPORT_FROM_EXCEL] {ite}/{len(data)}")
-        info(f"[IMPORT_FROM_EXCEL] {tag}")
+        # info(f"[IMPORT_FROM_EXCEL] {ite}/{len(data)}")
+        # info(f"[IMPORT_FROM_EXCEL] {tag}")
         add_product(category, tag)
     return
 
