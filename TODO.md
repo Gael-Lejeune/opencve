@@ -30,6 +30,9 @@
 
 - Implémenter la gestion des version pour :
   - L'API
+    - ~~Categories~~
+    - Produits
+    - Subscriptions
   - Les alertes
   - Les reports
   - Les excels
@@ -65,6 +68,9 @@
 
 - Implement the management of versions for :
   - The API
+    - ~~Categories~~
+    - Products
+    - Subscriptions
   - The alerts
   - The reports
   - The excels

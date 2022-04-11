@@ -2,6 +2,7 @@ from asyncio.log import logger
 from flask import request
 from flask_restful import fields, marshal_with
 
+from opencve.utils import get_cpe_list_from_specific_product
 from opencve.api.base import BaseResource
 from opencve.api.cves import cves_fields
 from opencve.api.fields import HumanizedNameField, ProductsListField, VendorsListField
@@ -54,11 +55,10 @@ class CategoryCveResource(BaseResource):
                     f"{v.name}" for v in category.vendors
                 ]
             )
-        vendors.extend(
-                [
-                    f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in category.products
-                ]
-            )
+        for product in category.products:
+            cpes = get_cpe_list_from_specific_product(product)
+            logger.warn(cpes)
+            vendors.extend(cpes)
         if not vendors:
             return []
 
