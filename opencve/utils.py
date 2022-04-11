@@ -5,7 +5,93 @@ from difflib import HtmlDiff
 
 from opencve.constants import PRODUCT_SEPARATOR
 from opencve.models.cwe import Cwe
+from opencve.commands import error, info
+from opencve.extensions import db
+from opencve.models.products import Product
+from sqlalchemy import and_, or_, String
 
+
+
+def check_cpe_values():
+    info("Checking every Product values...")
+    wrong_cpes = Product.query.filter(
+        Product.product_name.is_(None)
+        | Product.version.is_(None)
+        | Product.update.is_(None)
+        | Product.edition.is_(None)
+        | Product.language.is_(None)
+        | Product.sw_edition.is_(None)
+        | Product.target_sw.is_(None)
+        | Product.target_hw.is_(None)
+        | Product.other.is_(None)
+    ).all()
+    info("Correcting wrong CPEs...")
+    for cpe in wrong_cpes:
+        cpe_tab = cpe.name.split(":")
+        cpe.product_name = cpe_tab[4]
+        cpe.version = cpe_tab[5]
+        cpe.update = cpe_tab[6]
+        cpe.edition = cpe_tab[7]
+        cpe.language = cpe_tab[8]
+        cpe.sw_edition = cpe_tab[9]
+        cpe.target_sw = cpe_tab[10]
+        cpe.target_hw = cpe_tab[11]
+        cpe.other = cpe_tab[12]
+    db.session.commit()
+
+def get_cpe_list_from_specific_product(product):
+    regex_version = product.version.replace("*", "%")
+    regex_update = product.update.replace("*", "%")
+    regex_edition = product.edition.replace("*", "%")
+    regex_language = product.language.replace("*", "%")
+    regex_sw_edition = product.sw_edition.replace("*", "%")
+    regex_target_sw = product.target_sw.replace("*", "%")
+    regex_target_hw = product.target_hw.replace("*", "%")
+    regex_other = product.other.replace("*", "%")
+
+    query = Product.query.filter(
+        and_(
+            Product.vendor == product.vendor,
+            Product.product_name == product.product_name,
+            and_(
+                or_(
+                    Product.version.cast(String).ilike(regex_version),
+                    Product.version == "*",
+                ),
+                or_(
+                    Product.update.cast(String).ilike(regex_update),
+                    Product.update == "*",
+                ),
+                or_(
+                    Product.edition.cast(String).ilike(regex_edition),
+                    Product.edition == "*",
+                ),
+                or_(
+                    Product.language.cast(String).ilike(regex_language),
+                    Product.language == "*",
+                ),
+                or_(
+                    Product.sw_edition.cast(String).ilike(regex_sw_edition),
+                    Product.sw_edition == "*",
+                ),
+                or_(
+                    Product.target_sw.cast(String).ilike(regex_target_sw),
+                    Product.target_sw == "*",
+                ),
+                or_(
+                    Product.target_hw.cast(String).ilike(regex_target_hw),
+                    Product.target_hw == "*",
+                ),
+                or_(
+                    Product.other.cast(String).ilike(regex_other),
+                    Product.other == "*",
+                ),
+            )
+        ),
+    )
+    cpe_list = []
+    cpe_list = [f"{cpe.vendor.name}{PRODUCT_SEPARATOR}{cpe.name}" for cpe in query.all()]
+    return cpe_list
 
 def convert_cpes(conf):
     """
@@ -15,7 +101,7 @@ def convert_cpes(conf):
     uris = nested_lookup("cpe23Uri", conf) if not isinstance(conf, list) else conf
 
     # Create a list of tuple (vendor, product)
-    cpes_t = list(set([tuple(uri.split(":")[3:5]) for uri in uris]))
+    cpes_t = list(set([(uri.split(":")[3], uri) for uri in uris]))
 
     # Transform it into nested dictionnary
     cpes = {}

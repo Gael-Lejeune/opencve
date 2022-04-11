@@ -15,6 +15,16 @@ class Product(BaseModel):
     vendor = db.relationship("Vendor", back_populates="products")
     users = db.relationship("User", secondary=users_products)
     categories = db.relationship("Category", secondary=categories_products)
+    
+    product_name = db.Column(db.String(), nullable=True, index=True)
+    version = db.Column(db.String(), nullable=True, index=True) 
+    update = db.Column(db.String(), nullable=True) 
+    edition = db.Column(db.String(), nullable=True) 
+    language = db.Column(db.String(), nullable=True) 
+    sw_edition = db.Column(db.String(), nullable=True) 
+    target_sw = db.Column(db.String(), nullable=True) 
+    target_hw = db.Column(db.String(), nullable=True) 
+    other = db.Column(db.String(), nullable=True) 
 
     @property
     def human_name(self):

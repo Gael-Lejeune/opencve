@@ -1,6 +1,8 @@
 from flask import abort, current_app as app
 from flask_paginate import Pagination
 from werkzeug.datastructures import ImmutableMultiDict
+from opencve.commands import error, info
+from asyncio.log import logger
 
 
 class BaseController(object):
@@ -12,6 +14,7 @@ class BaseController(object):
 
     @classmethod
     def build_query(cls, args):
+        logger.warn(args)
         return cls.model.query, {}
 
     @classmethod

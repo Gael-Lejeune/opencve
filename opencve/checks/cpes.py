@@ -5,7 +5,7 @@ from opencve.commands.utils import CveUtil
 from opencve.extensions import db
 from opencve.models.products import Product
 from opencve.models.vendors import Vendor
-from opencve.utils import convert_cpes, flatten_vendors
+from opencve.utils import convert_cpes, flatten_vendors, check_cpe_values
 
 
 class Cpes(BaseCheck):
@@ -46,6 +46,8 @@ class Cpes(BaseCheck):
                         p_obj = Product(name=product, vendor=v_obj)
                         db.session.add(p_obj)
                         db.session.commit()
+                
+                check_cpe_values()
 
             # Create the event
             event = CveUtil.create_event(self.cve_obj, self.cve_json, "cpes", payload)

@@ -3,8 +3,8 @@ import json
 from flask import current_app as app
 from flask import abort, redirect, render_template, request, url_for
 from flask_paginate import Pagination
-from sqlalchemy import and_, or_
-
+from sqlalchemy import and_, or_, String
+from sqlalchemy.dialects.postgresql import array
 from opencve.constants import PRODUCT_SEPARATOR
 from opencve.controllers.base import BaseController
 from opencve.controllers.main import main
@@ -13,9 +13,11 @@ from opencve.models.cve import Cve
 from opencve.models.products import Product
 from opencve.models.tags import CveTag
 from opencve.models.vendors import Vendor
+from opencve.utils import get_cpe_list_from_specific_product
 
 from opencve.models.cwe import Cwe
 
+from asyncio.log import logger
 
 class CveController(BaseController):
     model = Cve
@@ -109,12 +111,26 @@ class CveController(BaseController):
             ).first()
             if not product:
                 abort(404, "Not found.")
-
+            
+            logger.warn(f"Vendor: {vendor.name}")
+            logger.warn(f"Product: {product.name}")
+            logger.warn(f"Product ID: {product.id}")
+            logger.warn(f"Product_name: {product.product_name}")
+            logger.warn(f"Version: {product.version}")
+            logger.warn(f"Update: {product.update}")
+            logger.warn(f"Edition: {product.edition}")
+            logger.warn(f"Language: {product.language}")
+            logger.warn(f"SW_Edition: {product.sw_edition}")
+            logger.warn(f"Target_sw: {product.target_sw}")
+            logger.warn(f"Target_hw: {product.target_hw}")
+            logger.warn(f"Other: {product.other}")
+            
+            cpes = get_cpe_list_from_specific_product(product)
+            logger.warn(cpes)
             query = query.filter(
-                Cve.vendors.contains(
-                    [f"{vendor.name}{PRODUCT_SEPARATOR}{product.name}"]
-                )
+                Cve.vendors.has_any(array(cpes))
             )
+            logger.warn(query)
 
         # Filter by vendor
         elif vendor_query:

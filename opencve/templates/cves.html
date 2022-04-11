@@ -7,6 +7,9 @@
 - {{ product.name | humanize }}
 {% endif %}
 CVE
+{% elif category %}
+{{ category.name | humanize }}
+CVE
 {% elif request.args.get('cwe') %}
 CWE-{{ request.args.get('cwe') }} CVE
 {% else %}
@@ -43,7 +46,7 @@ Vulnerabilities (CVE)
         </div>
     </div>
     {% endif %}
-    {% if vendor or product %}
+    {% if vendor or product or category %}
     <div class="row">
         {% if vendor %}
         <div class="col-sm-12 col-lg-6">
@@ -113,6 +116,40 @@ Vulnerabilities (CVE)
             </div>
         </div>
         {% endif %}
+        {% if category %}
+        <div class="col-sm-12 col-lg-6">
+            <div class="box box-info">
+                <div class="box-header">
+                    <div class="box-title">
+                        Filtered by category <strong>{{ category.name | humanize }}</strong>
+                        {% if current_user.is_authenticated %}
+                        {% if category in current_user.categories %}
+                        <button class="btn btn-danger btn-sm subscribe" id="unsubscribe_category_{{     category.id }}"
+                                type="button">Unsubscribe
+                        </button>
+                        {% else %}
+                        <button class="btn btn-default btn-sm subscribe" id="subscribe_category_{{ category.    id }}"
+                                type="button">Subscribe
+                        </button>
+                        {% endif %}
+                        {% else %}
+                        <a class="btn btn-default btn-sm subscribe"
+                           href="{{ url_for('user.login', next=request.url) }}"
+                           data-toggle="tooltip"
+                           data-container="body"
+                           title="You must be signed in to subscribe">Subscribe
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="box-tools pull-right">
+                        <a type="button" class="btn btn-box-tool" data-toggle="remove"
+                           href="{{ url_for('main.cves', cvss=request.args.get('cvss'), vendor=request.args.    get('vendor')) }}"><i
+                                class="fa fa-times"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 
@@ -130,6 +167,9 @@ Vulnerabilities (CVE)
                         {% endif %}
                         {% if request.args.get('product') %}
                         <input type="hidden" name="product" value="{{product.name }}" />
+                        {% endif %}
+                        {% if request.args.get('category') %}
+                        <input type="hidden" name="category" value="{{category.name }}" />
                         {% endif %}
                         <div class="row">
                             <div class="col-md-3">

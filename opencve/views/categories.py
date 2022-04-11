@@ -19,7 +19,7 @@ from opencve.controllers.categories import (CategoryController, create_category,
                                          import_from_excel, generateCategoryReport)
 from opencve.controllers.main import main
 from opencve.models.categories import Category
-from opencve.utils import get_categories_letters
+from opencve.utils import get_categories_letters, get_cpe_list_from_specific_product
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = '/tmp/shared/'
@@ -76,11 +76,9 @@ def category(category_name):  # Specified Category page
             f"{v.name}" for v in category.vendors
         ]
     )
-    vendors.extend(
-        [
-            f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in category.products
-        ]
-    )
+    for p in category.products:
+        cpes = get_cpe_list_from_specific_product(p)
+        vendors.extend(cpes)  
     if not vendors:
         vendors = [None]
     query = query.filter(Cve.vendors.has_any(array(vendors)))     

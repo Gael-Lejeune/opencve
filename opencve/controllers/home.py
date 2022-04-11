@@ -20,7 +20,7 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 import datetime
 from opencve.forms import ActivitiesViewForm
-from opencve.utils import convert_cpes, get_cwes_details, CustomHtmlHTML
+from opencve.utils import convert_cpes, get_cpe_list_from_specific_product, get_cwes_details, CustomHtmlHTML
 
 
 
@@ -99,23 +99,18 @@ def home():
     # Filter by subscriptions
     if current_user.settings["activities_view"] == "subscriptions":
         vendors = [v.name for v in current_user.vendors]
-        vendors.extend(
-            [
-                f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}"
-                for p in current_user.products
-            ]
-        )
+        for p in current_user.products:
+            cpes = get_cpe_list_from_specific_product(p)
+            vendors.extend(cpes)
         for c in current_user.categories:
             vendors.extend(
                 [
                     f"{v.name}" for v in c.vendors
                 ]
             )
-            vendors.extend(
-                [
-                    f"{p.vendor.name}{PRODUCT_SEPARATOR}{p.name}" for p in c.products
-                ]
-            )
+            for p in c.products:
+                cpes = get_cpe_list_from_specific_product(p)
+                vendors.extend(cpes)
         if not vendors:
             vendors = [None]
         query = query.filter(Cve.vendors.has_any(array(vendors)))     

@@ -25,6 +25,15 @@
     - Comment update les elements suivis ?
 
 - Vérifier si tout les produits cités sont bien vulnérables ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+### Spécifique à la branche
+
+- Implémenter la gestion des version pour :
+  - L'API
+  - Les alertes
+  - Les reports
+  - Les excels
+  - Le champ "impacted categories"
 ---
 ## English
 
@@ -51,3 +60,12 @@
   - How to update the elements followed ?
 
 - Verify if all the products cited are vulnerable ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+### Specific to the branch
+
+- Implement the management of versions for :
+  - The API
+  - The alerts
+  - The reports
+  - The excels
+  - The "impacted categories" field

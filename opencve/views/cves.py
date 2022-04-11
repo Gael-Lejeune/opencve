@@ -31,6 +31,7 @@ def cves():
         cves=objects,
         vendor=metas.get("vendor"),
         product=metas.get("product"),
+        category=metas.get("category"), #TODO
         tag=metas.get("tag"),
         user_tags=user_tags,
         pagination=pagination,

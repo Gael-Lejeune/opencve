@@ -179,10 +179,6 @@ def import_from_excel(self, category_name, path_to_file):
     for i in range(min_value_index, max_value_index):
         if tag_col != None:
             tag = str(sheet[i][tag_col].value)
-            if ":" in tag:
-                # info(f"[IMPORT_FROM_EXCEL] : in {tag}")
-                tag = tag.split(":")[4]
-                # info(f"[IMPORT_FROM_EXCEL] tag changed to {tag}")
         else:
             tag = None
         if tag not in data:
