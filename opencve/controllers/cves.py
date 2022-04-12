@@ -112,25 +112,11 @@ class CveController(BaseController):
             if not product:
                 abort(404, "Not found.")
             
-            logger.warn(f"Vendor: {vendor.name}")
-            logger.warn(f"Product: {product.name}")
-            logger.warn(f"Product ID: {product.id}")
-            logger.warn(f"Product_name: {product.product_name}")
-            logger.warn(f"Version: {product.version}")
-            logger.warn(f"Update: {product.update}")
-            logger.warn(f"Edition: {product.edition}")
-            logger.warn(f"Language: {product.language}")
-            logger.warn(f"SW_Edition: {product.sw_edition}")
-            logger.warn(f"Target_sw: {product.target_sw}")
-            logger.warn(f"Target_hw: {product.target_hw}")
-            logger.warn(f"Other: {product.other}")
-            
             cpes = get_cpe_list_from_specific_product(product)
             logger.warn(cpes)
             query = query.filter(
                 Cve.vendors.has_any(array(cpes))
             )
-            logger.warn(query)
 
         # Filter by vendor
         elif vendor_query:
@@ -144,7 +130,11 @@ class CveController(BaseController):
             product = Product.query.filter_by(name=product_query).first()
             if not product:
                 abort(404, "Not found.")
-            query = query.filter(Cve.vendors.contains([product.name]))
+            cpes = get_cpe_list_from_specific_product(product)
+            logger.warn(cpes)
+            query = query.filter(
+                Cve.vendors.has_any(array(cpes))
+            )
 
         # Filter by tag
         if args.get("tag"):

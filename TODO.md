@@ -29,11 +29,10 @@
 ### Spécifique à la branche
 
 - Implémenter la gestion des version pour :
-  - L'API
+  - ~~L'API~~
     - ~~Categories~~
-    - Produits
-    - Subscriptions
-  - Les alertes
+    - ~~Produits~~
+  - ~~Les alertes~~
   - Les reports
   - Les excels
   - Le champ "impacted categories"
@@ -69,9 +68,9 @@
 - Implement the management of versions for :
   - The API
     - ~~Categories~~
-    - Products
-    - Subscriptions
-  - The alerts
-  - The reports
-  - The excels
+    - ~~Products~~
+    - ~~Subscriptions~~
+  - ~~The alerts~~
+  - ~~The reports~~
+  - ~~The excels~~
   - The "impacted categories" field

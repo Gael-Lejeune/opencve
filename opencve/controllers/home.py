@@ -156,17 +156,13 @@ def generateUserReport():
     cves = []
 
     for product in current_user.products:
-        # ws.append([product.name])
+        cpes = get_cpe_list_from_specific_product(product)
         ws['A'+str(i)] = product.name
-        # ws.append([product.vendor.name])
         ws['B'+str(i)] = product.vendor.name
         count = 0
         cveQuery = Cve.query.filter(
             and_(
-                or_(
-                    # Cve.vendors.contains([product.vendor.name]) if vendor else None, # For the moment, the count is also based on the vendor
-                    Cve.vendors.contains([product.vendor.name+'$PRODUCT$'+product.name]) if product else None,
-                ),
+                Cve.vendors.has_any(array(cpes)) if product else None,
                 Cve.updated_at >= date,
             )
         )
@@ -235,10 +231,7 @@ def generateUserReport():
         count = 0
         cveQuery = Cve.query.filter(
             and_(
-                or_(
-                    Cve.vendors.contains([vendor.name]) if vendor else None, # For the moment, the count is also based on the vendor
-                    # Cve.vendors.contains([product.vendor.name+'$PRODUCT$'+product.name]) if product else None,
-                ),
+                Cve.vendors.contains([vendor.name]) if vendor else None,
                 Cve.updated_at >= date,
             )
         )

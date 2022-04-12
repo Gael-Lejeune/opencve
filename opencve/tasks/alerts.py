@@ -1,3 +1,4 @@
+import imp
 from celery.utils.log import get_task_logger
 
 from opencve.constants import PRODUCT_SEPARATOR
@@ -9,6 +10,9 @@ from opencve.models.products import Product
 from opencve.models.vendors import Vendor
 from opencve.models.categories import Category
 from opencve.commands import error, info
+from opencve.utils import get_cpe_list_from_specific_product
+from sqlalchemy.dialects.postgresql import array
+
 
 logger = get_task_logger(__name__)
 
@@ -51,18 +55,24 @@ def handle_alerts():
                 product = Product.query.filter_by(
                     name=v.split(PRODUCT_SEPARATOR)[1], vendor_id=vendor.id
                 ).first()
-                categories = Category.query.filter(
-                    Category.products.contains(product)
-                    ).all()
-                for user in product.users:
-                    if user not in users.keys():
-                        users[user] = {"products": [], "vendors": []}
-                    users[user]["products"].append(product.name)
-                for category in product.categories:
-                    for u in category.users:
-                        if u not in users.keys():
-                            users[u] = {"products": [], "vendors": []}
-                        users[u]["products"].append(product.name)
+                cpes = get_cpe_list_from_specific_product(product)
+                logger.warn(cpes)
+                query = query.filter(
+                    Cve.vendors.has_any(array(cpes))
+                )
+                for cpe in cpes:
+                    product = Product.query.filter_by(
+                        name=cpe
+                    ).first()
+                    for user in product.users:
+                        if user not in users.keys():
+                            users[user] = {"products": [], "vendors": []}
+                        users[user]["products"].append(product.name)
+                    for category in product.categories:
+                        for u in category.users:
+                            if u not in users.keys():
+                                users[u] = {"products": [], "vendors": []}
+                            users[u]["products"].append(product.name)
 
             # Vendor
             else:
