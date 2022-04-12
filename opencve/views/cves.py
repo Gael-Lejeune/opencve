@@ -1,4 +1,3 @@
-from asyncio.log import logger
 import itertools
 import json
 import operator
@@ -10,11 +9,11 @@ from opencve.controllers.cves import CveController
 from opencve.controllers.main import main
 from opencve.controllers.tags import UserTagController
 from opencve.extensions import db
-from opencve.models import categories, is_valid_uuid
+from opencve.models import is_valid_uuid
 from opencve.models.changes import Change
 from opencve.models.events import Event
 from opencve.models.tags import CveTag
-from opencve.utils import convert_cpes, get_cpe_list_from_specific_product, get_cwes_details, CustomHtmlHTML
+from opencve.utils import convert_cpes, get_cwes_details, CustomHtmlHTML
 
 
 @main.route("/cve")
@@ -62,20 +61,6 @@ def cve(cve_id):
         (time, list(evs))
         for time, evs in (itertools.groupby(events, operator.attrgetter("created_at")))
     ]
-    
-    # TODO
-    # impacted_categories = []
-    # for category in current_user.categories:
-    #     for vendor in vendors:
-    #         for product in category.products:
-    #             cpes = get_cpe_list_from_specific_product(product)
-    #             for cpe in cpes:
-    #                 logger.warn(vendor)
-    #                 if cpe in vendor:
-    #                     impacted_categories.append(category)
-    #                     break
-    # logger.warn(vendors)
-    # logger.warn(impacted_categories)
 
     return render_template(
         "cve.html",
@@ -86,7 +71,6 @@ def cve(cve_id):
         user_tags=user_tags,
         cve_tags_encoded=cve_tags_encoded,
         events_by_time=events_by_time,
-        # impacted_categories=impacted_categories,
     )
 
 

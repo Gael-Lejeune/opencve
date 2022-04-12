@@ -33,13 +33,9 @@
     - ~~Categories~~
     - ~~Produits~~
   - ~~Les alertes~~
-  - ~~Les reports~~
-  - ~~Les excels~~
+  - Les reports
+  - Les excels
   - Le champ "impacted categories"
-    - Sur la page de CVE
-    - Sur la liste des CVE
-    - Sur les reports
-    - Sur le dashboard
 ---
 ## English
 
