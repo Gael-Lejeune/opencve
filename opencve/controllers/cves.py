@@ -113,7 +113,6 @@ class CveController(BaseController):
                 abort(404, "Not found.")
             
             cpes = get_cpe_list_from_specific_product(product)
-            logger.warn(cpes)
             query = query.filter(
                 Cve.vendors.has_any(array(cpes))
             )
@@ -131,7 +130,6 @@ class CveController(BaseController):
             if not product:
                 abort(404, "Not found.")
             cpes = get_cpe_list_from_specific_product(product)
-            logger.warn(cpes)
             query = query.filter(
                 Cve.vendors.has_any(array(cpes))
             )

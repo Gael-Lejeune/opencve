@@ -14,7 +14,6 @@ class BaseController(object):
 
     @classmethod
     def build_query(cls, args):
-        logger.warn(args)
         return cls.model.query, {}
 
     @classmethod

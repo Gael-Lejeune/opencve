@@ -57,7 +57,6 @@ class CategoryCveResource(BaseResource):
             )
         for product in category.products:
             cpes = get_cpe_list_from_specific_product(product)
-            logger.warn(cpes)
             vendors.extend(cpes)
         if not vendors:
             return []
