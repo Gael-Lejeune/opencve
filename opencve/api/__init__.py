@@ -8,6 +8,7 @@ from opencve.api.products import (
     ProductListResource,
     ProductResource,
     ProductCveResource,
+    FlatProductListResource,
 )
 from opencve.api.reports import ReportListResource, ReportResource
 from opencve.api.vendors import VendorListResource, VendorResource, VendorCveResource

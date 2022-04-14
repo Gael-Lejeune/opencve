@@ -47,6 +47,7 @@ class ProductCveResource(BaseResource):
             {**request.args, "vendor": vendor, "product": product}
         )
 
+
 class FlatProductListResource(BaseResource):
     @marshal_with(vendor_product_fields)
     def get(self):
