@@ -55,24 +55,28 @@ def handle_alerts():
                 product = Product.query.filter_by(
                     name=v.split(PRODUCT_SEPARATOR)[1], vendor_id=vendor.id
                 ).first()
+                # logger.warn(v.split(PRODUCT_SEPARATOR)[1])
                 cpes = get_cpe_list_from_specific_product(product)
-                logger.warn(cpes)
-                query = query.filter(
-                    Cve.vendors.has_any(array(cpes))
-                )
+                # logger.warn(cpes)
+                # query = Cve.query.filter(
+                #     Cve.vendors.has_any(array(cpes))
+                # )
                 for cpe in cpes:
                     product = Product.query.filter_by(
                         name=cpe
                     ).first()
-                    for user in product.users:
-                        if user not in users.keys():
-                            users[user] = {"products": [], "vendors": []}
-                        users[user]["products"].append(product.name)
-                    for category in product.categories:
-                        for u in category.users:
-                            if u not in users.keys():
-                                users[u] = {"products": [], "vendors": []}
-                            users[u]["products"].append(product.name)
+                    # logger.warn(cpe)
+                    # logger.warn(product)
+                    if product:
+                        for user in product.users:
+                            if user not in users.keys():
+                                users[user] = {"products": [], "vendors": []}
+                            users[user]["products"].append(product.name)
+                        for category in product.categories:
+                            for u in category.users:
+                                if u not in users.keys():
+                                    users[u] = {"products": [], "vendors": []}
+                                users[u]["products"].append(product.name)
 
             # Vendor
             else:
