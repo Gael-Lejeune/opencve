@@ -1,5 +1,4 @@
 from asyncio.log import logger
-from importlib.resources import path
 import os
 import uuid
 from opencve.models.changes import Change
