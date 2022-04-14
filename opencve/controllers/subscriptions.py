@@ -135,7 +135,9 @@ def subscribe_to_tag():
                 category.products.remove(product)
                 db.session.commit()
 
-            return json.dumps({"status": "ok", "message": "product removed from category"})
+            return json.dumps(
+                {"status": "ok", "message": "product removed from category"}
+            )
 
     # Add vendor to a category
     if request.form["obj"] == "categoryvendor":
@@ -165,6 +167,8 @@ def subscribe_to_tag():
                 category.vendors.remove(vendor)
                 db.session.commit()
 
-            return json.dumps({"status": "ok", "message": "vendor removed from category"})
+            return json.dumps(
+                {"status": "ok", "message": "vendor removed from category"}
+            )
 
     return json.dumps({"status": "error", "message": "bad request"})

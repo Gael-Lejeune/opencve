@@ -66,11 +66,13 @@ def get_vendors_letters():
     """
     return list(string.ascii_lowercase + "@" + string.digits)
 
+
 def get_categories_letters():
     """
     Returns a list of letters used to filter the vendors.
     """
     return list(string.ascii_lowercase + "@" + string.digits)
+
 
 class CustomHtmlHTML(HtmlDiff):
     def __init__(self, *args, **kwargs):

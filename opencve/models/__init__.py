@@ -85,7 +85,10 @@ users_categories = db.Table(
 categories_vendors = db.Table(
     "categories_vendors",
     db.Column(
-        "category_id", UUIDType(binary=False), db.ForeignKey("categories.id"), primary_key=True
+        "category_id",
+        UUIDType(binary=False),
+        db.ForeignKey("categories.id"),
+        primary_key=True,
     ),
     db.Column(
         "vendor_id",
@@ -98,7 +101,10 @@ categories_vendors = db.Table(
 categories_products = db.Table(
     "categories_products",
     db.Column(
-        "category_id", UUIDType(binary=False), db.ForeignKey("categories.id"), primary_key=True
+        "category_id",
+        UUIDType(binary=False),
+        db.ForeignKey("categories.id"),
+        primary_key=True,
     ),
     db.Column(
         "product_id",

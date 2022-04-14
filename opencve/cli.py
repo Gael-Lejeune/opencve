@@ -15,6 +15,7 @@ from opencve.commands.create_table import create_table
 from opencve.commands.add_product_to_category import add_product_to_category
 from opencve.commands.read_excel import read_excel
 
+
 @click.group()
 @click.version_option(version=__version__)
 def cli():

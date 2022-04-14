@@ -6,6 +6,7 @@ from opencve.extensions import cel
 from opencve.tasks.alerts import handle_alerts
 from opencve.tasks.events import handle_events
 from opencve.tasks.reports import handle_reports
+from opencve.utils import check_cpe_values
 
 # Celery Beat configuration
 CELERYBEAT_SCHEDULE = {}
@@ -20,4 +21,6 @@ CELERYBEAT_SCHEDULE["cve-updates-15-mn"] = {
 
 @cel.task(bind=True, name="CVE_UPDATES")
 def cve_updates(self):
+    cel.app.app_context().push()
+    check_cpe_values()
     return chain(handle_events.si(), handle_alerts.si(), handle_reports.si())()
