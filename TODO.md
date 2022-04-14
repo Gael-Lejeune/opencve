@@ -26,6 +26,7 @@
 
 - Vérifier si tout les produits cités sont bien vulnérables ([Github Issue](https://github.com/opencve/opencve/issues/184))
 
+- Réparer le bouton de page suivante sur la page de categorie
 ### Spécifique à la branche
 
 - Implémenter la gestion des version pour :
@@ -67,6 +68,7 @@
 
 - Verify if all the products cited are vulnerable ([Github Issue](https://github.com/opencve/opencve/issues/184))
 
+- Fix the button next page on the category page
 ### Specific to the branch
 
 - Implement the management of versions for :

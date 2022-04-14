@@ -7,6 +7,7 @@ from opencve.models.categories import Category
 from opencve.utils import get_vendors_letters
 from flask_user import current_user
 
+
 @main.route("/vendors")
 def vendors():
     vendors, _, pagination_v = VendorController.list(request.args)

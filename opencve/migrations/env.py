@@ -3,8 +3,10 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 import logging
+
 # Import category table
 from opencve.models import *
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -49,6 +51,7 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
+
 def render_item(type_, obj, autogen_context):
     """Apply custom rendering for selected items."""
 
@@ -61,6 +64,7 @@ def render_item(type_, obj, autogen_context):
 
     # default rendering for other objects
     return False
+
 
 def run_migrations_online():
     """Run migrations in 'online' mode.
@@ -92,9 +96,8 @@ def run_migrations_online():
         target_metadata=target_metadata,
         process_revision_directives=process_revision_directives,
         render_item=render_item,
-
         **current_app.extensions["migrate"].configure_args,
-        compare_type=True 
+        compare_type=True,
     )
 
     try:

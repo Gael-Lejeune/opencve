@@ -18,15 +18,17 @@ from sqlalchemy import and_, or_, func
 import datetime
 
 
-
-
 category_list_fields = {
     "name": fields.String(attribute="name"),
     "human_name": HumanizedNameField(attribute="name"),
 }
 
 category_fields = dict(
-    category_list_fields, **{"products": ProductsListField(attribute="products"), "vendors": VendorsListField(attribute="vendors")},
+    category_list_fields,
+    **{
+        "products": ProductsListField(attribute="products"),
+        "vendors": VendorsListField(attribute="vendors"),
+    },
 )
 
 
@@ -50,6 +52,7 @@ class CategoryCveResource(BaseResource):
         date = datetime.datetime.now() - datetime.timedelta(days=int(period))
         category = CategoryController.get({"name": name})
         vendors = []
+        vendors.extend([f"{v.name}" for v in category.vendors])
         vendors.extend(
                 [
                     f"{v.name}" for v in category.vendors
@@ -61,35 +64,36 @@ class CategoryCveResource(BaseResource):
         if not vendors:
             return []
 
-        cves = Cve.query.filter(
-            and_(
-                Cve.vendors.has_any(array(vendors)),
-                Cve.updated_at >= date,
-                or_(
-                    Cve.cvss2 >= float(criticality),
-                    Cve.cvss3 >= float(criticality),
+        cves = (
+            Cve.query.filter(
+                and_(
+                    Cve.vendors.has_any(array(vendors)),
+                    Cve.updated_at >= date,
+                    or_(
+                        Cve.cvss2 >= float(criticality),
+                        Cve.cvss3 >= float(criticality),
+                    ),
                 )
-                )
-            ).order_by(Cve.updated_at.desc()).all() 
+            )
+            .order_by(Cve.updated_at.desc())
+            .all()
+        )
 
         if not cves:
             return []
         else:
             return cves
 
+
 class CategoryVendorsResource(BaseResource):
     @marshal_with(vendor_list_fields)
     def get(self, name):
-        category = Category.query.filter_by(
-            name=name
-        ).first()
+        category = Category.query.filter_by(name=name).first()
         return category.vendors
 
 
 class CategoryProductsResource(BaseResource):
     @marshal_with(product_fields)
     def get(self, name):
-        category = Category.query.filter_by(
-            name=name
-        ).first()
+        category = Category.query.filter_by(name=name).first()
         return category.products

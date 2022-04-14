@@ -40,6 +40,7 @@ class SubscriptionListRessourceProduct(BaseResource):
         ).first()
         return user.products
 
+
 class SubscriptionListRessourceCategory(BaseResource):
     @marshal_with(category_list_fields)
     def get(self):

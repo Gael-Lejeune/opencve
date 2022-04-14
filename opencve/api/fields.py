@@ -22,6 +22,7 @@ class ProductsListField(fields.Raw):
     def format(self, products):
         return sorted([product.name for product in products])
 
+
 class VendorsListField(fields.Raw):
     """
     Returns a list of vendors.

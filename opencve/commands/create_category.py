@@ -14,7 +14,6 @@ from opencve.commands import info
 
 @click.command()
 @click.argument("name")
-
 @with_appcontext
 def create_category(name):
     """Create a Category."""

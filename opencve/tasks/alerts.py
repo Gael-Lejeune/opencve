@@ -22,6 +22,7 @@ def filter_events(user, events):
         e for e in events if e.type.code in user.filters_notifications["event_types"]
     ]
 
+
 @cel.task(name="HANDLE_ALERTS")
 def handle_alerts():
     cel.app.app_context().push()
@@ -77,7 +78,6 @@ def handle_alerts():
                                 if u not in users.keys():
                                     users[u] = {"products": [], "vendors": []}
                                 users[u]["products"].append(product.name)
-
             # Vendor
             else:
                 vendor = Vendor.query.filter_by(name=v).first()
