@@ -5,7 +5,7 @@ from difflib import HtmlDiff
 
 from opencve.constants import PRODUCT_SEPARATOR
 from opencve.models.cwe import Cwe
-from opencve.commands import error, info
+from opencve.commands import error, info, timed_operation
 from opencve.extensions import db
 from opencve.models.products import Product
 from sqlalchemy import and_, or_, String
@@ -13,31 +13,32 @@ from sqlalchemy import and_, or_, String
 
 
 def check_cpe_values():
-    info("Checking every Product values...")
-    wrong_cpes = Product.query.filter(
-        Product.product_name.is_(None)
-        | Product.version.is_(None)
-        | Product.update.is_(None)
-        | Product.edition.is_(None)
-        | Product.language.is_(None)
-        | Product.sw_edition.is_(None)
-        | Product.target_sw.is_(None)
-        | Product.target_hw.is_(None)
-        | Product.other.is_(None)
-    ).all()
-    info("Correcting wrong CPEs...")
-    for cpe in wrong_cpes:
-        cpe_tab = cpe.name.split(":")
-        cpe.product_name = cpe_tab[4]
-        cpe.version = cpe_tab[5]
-        cpe.update = cpe_tab[6]
-        cpe.edition = cpe_tab[7]
-        cpe.language = cpe_tab[8]
-        cpe.sw_edition = cpe_tab[9]
-        cpe.target_sw = cpe_tab[10]
-        cpe.target_hw = cpe_tab[11]
-        cpe.other = cpe_tab[12]
-    db.session.commit()
+    with timed_operation("Checking wrong or missing product values..."):
+        wrong_cpes = Product.query.filter(
+            Product.product_name.is_(None)
+            | Product.version.is_(None)
+            | Product.update.is_(None)
+            | Product.edition.is_(None)
+            | Product.language.is_(None)
+            | Product.sw_edition.is_(None)
+            | Product.target_sw.is_(None)
+            | Product.target_hw.is_(None)
+            | Product.other.is_(None)
+        ).all()
+    if wrong_cpes:
+        with timed_operation("Inserting missing values..."):
+            for cpe in wrong_cpes:
+                cpe_tab = cpe.name.split(":")
+                cpe.product_name = cpe_tab[4]
+                cpe.version = cpe_tab[5]
+                cpe.update = cpe_tab[6]
+                cpe.edition = cpe_tab[7]
+                cpe.language = cpe_tab[8]
+                cpe.sw_edition = cpe_tab[9]
+                cpe.target_sw = cpe_tab[10]
+                cpe.target_hw = cpe_tab[11]
+                cpe.other = cpe_tab[12]
+            db.session.commit()
 
 def get_cpe_list_from_specific_product(product):
     regex_version = product.version.replace("*", "%")
