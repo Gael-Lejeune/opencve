@@ -11,7 +11,6 @@ from opencve.models.products import Product
 from sqlalchemy import and_, or_, String
 
 
-
 def check_cpe_values():
     with timed_operation("Checking wrong or missing product values..."):
         wrong_cpes = Product.query.filter(
@@ -39,6 +38,7 @@ def check_cpe_values():
                 cpe.target_hw = cpe_tab[11]
                 cpe.other = cpe_tab[12]
             db.session.commit()
+
 
 def get_cpe_list_from_specific_product(product):
     regex_version = product.version.replace("*", "%")
@@ -87,12 +87,15 @@ def get_cpe_list_from_specific_product(product):
                     Product.other.cast(String).ilike(regex_other),
                     Product.other == "*",
                 ),
-            )
+            ),
         ),
     )
     cpe_list = []
-    cpe_list = [f"{cpe.vendor.name}{PRODUCT_SEPARATOR}{cpe.name}" for cpe in query.all()]
+    cpe_list = [
+        f"{cpe.vendor.name}{PRODUCT_SEPARATOR}{cpe.name}" for cpe in query.all()
+    ]
     return cpe_list
+
 
 def convert_cpes(conf):
     """

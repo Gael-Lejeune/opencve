@@ -20,7 +20,12 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 import datetime
 from opencve.forms import ActivitiesViewForm
-from opencve.utils import convert_cpes, get_cpe_list_from_specific_product, get_cwes_details, CustomHtmlHTML
+from opencve.utils import (
+    convert_cpes,
+    get_cpe_list_from_specific_product,
+    get_cwes_details,
+    CustomHtmlHTML,
+)
 
 
 from celery.utils.log import get_task_logger
@@ -103,11 +108,7 @@ def home():
             vendors.extend(cpes)
         for c in current_user.categories:
             vendors.extend([f"{v.name}" for v in c.vendors])
-            vendors.extend(
-                [
-                    f"{v.name}" for v in c.vendors
-                ]
-            )
+            vendors.extend([f"{v.name}" for v in c.vendors])
             for p in c.products:
                 cpes = get_cpe_list_from_specific_product(p)
                 vendors.extend(cpes)
@@ -162,8 +163,8 @@ def generateUserReport():
 
     for product in current_user.products:
         cpes = get_cpe_list_from_specific_product(product)
-        ws['A'+str(i)] = product.name
-        ws['B'+str(i)] = product.vendor.name
+        ws["A" + str(i)] = product.name
+        ws["B" + str(i)] = product.vendor.name
         count = 0
         cveQuery = Cve.query.filter(
             and_(

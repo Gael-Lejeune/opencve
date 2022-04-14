@@ -75,14 +75,10 @@ def category(category_name):  # Specified Category page
 
     vendors = [v.name for v in category.vendors]
     vendors.extend([f"{v.name}" for v in category.vendors])
-    vendors.extend(
-        [
-            f"{v.name}" for v in category.vendors
-        ]
-    )
+    vendors.extend([f"{v.name}" for v in category.vendors])
     for p in category.products:
         cpes = get_cpe_list_from_specific_product(p)
-        vendors.extend(cpes)  
+        vendors.extend(cpes)
     if not vendors:
         vendors = [None]
     query = query.filter(Cve.vendors.has_any(array(vendors)))

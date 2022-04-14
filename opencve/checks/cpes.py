@@ -46,7 +46,7 @@ class Cpes(BaseCheck):
                         p_obj = Product(name=product, vendor=v_obj)
                         db.session.add(p_obj)
                         db.session.commit()
-                
+
                 check_cpe_values()
 
             # Create the event

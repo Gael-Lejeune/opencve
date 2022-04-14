@@ -22,7 +22,11 @@ import datetime
 from openpyxl import Workbook
 from flask_user import current_user
 from sqlalchemy import and_, or_, func
-from opencve.utils import convert_cpes, get_cwes_details, get_cpe_list_from_specific_product
+from opencve.utils import (
+    convert_cpes,
+    get_cwes_details,
+    get_cpe_list_from_specific_product,
+)
 from opencve.controllers.cves import CveController
 from sqlalchemy.dialects.postgresql import array
 
@@ -213,7 +217,7 @@ def generateCategoryReport(category, period):
     ws["F1"] = "Number of critical CVEs (CVSS2 or CVSS3 above 7.5)"
     i = 2
     cves = []
-    
+
     for product in category.products:
         ws["A" + str(i)] = product.name
         ws["B" + str(i)] = product.vendor.name

@@ -14,7 +14,12 @@ from opencve.models import categories, is_valid_uuid
 from opencve.models.changes import Change
 from opencve.models.events import Event
 from opencve.models.tags import CveTag
-from opencve.utils import convert_cpes, get_cpe_list_from_specific_product, get_cwes_details, CustomHtmlHTML
+from opencve.utils import (
+    convert_cpes,
+    get_cpe_list_from_specific_product,
+    get_cwes_details,
+    CustomHtmlHTML,
+)
 
 
 @main.route("/cve")
@@ -32,7 +37,7 @@ def cves():
         cves=objects,
         vendor=metas.get("vendor"),
         product=metas.get("product"),
-        category=metas.get("category"), #TODO
+        category=metas.get("category"),  # TODO
         tag=metas.get("tag"),
         user_tags=user_tags,
         pagination=pagination,
@@ -62,7 +67,7 @@ def cve(cve_id):
         (time, list(evs))
         for time, evs in (itertools.groupby(events, operator.attrgetter("created_at")))
     ]
-    
+
     # TODO
     # impacted_categories = []
     # for category in current_user.categories:

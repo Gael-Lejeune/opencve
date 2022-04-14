@@ -19,6 +19,7 @@ from opencve.models.cwe import Cwe
 
 from asyncio.log import logger
 
+
 class CveController(BaseController):
     model = Cve
     order = Cve.updated_at.desc()
@@ -111,11 +112,9 @@ class CveController(BaseController):
             ).first()
             if not product:
                 abort(404, "Not found.")
-            
+
             cpes = get_cpe_list_from_specific_product(product)
-            query = query.filter(
-                Cve.vendors.has_any(array(cpes))
-            )
+            query = query.filter(Cve.vendors.has_any(array(cpes)))
 
         # Filter by vendor
         elif vendor_query:
@@ -130,9 +129,7 @@ class CveController(BaseController):
             if not product:
                 abort(404, "Not found.")
             cpes = get_cpe_list_from_specific_product(product)
-            query = query.filter(
-                Cve.vendors.has_any(array(cpes))
-            )
+            query = query.filter(Cve.vendors.has_any(array(cpes)))
 
         # Filter by tag
         if args.get("tag"):

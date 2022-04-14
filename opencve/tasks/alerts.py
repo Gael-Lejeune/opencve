@@ -63,9 +63,7 @@ def handle_alerts():
                 #     Cve.vendors.has_any(array(cpes))
                 # )
                 for cpe in cpes:
-                    product = Product.query.filter_by(
-                        name=cpe
-                    ).first()
+                    product = Product.query.filter_by(name=cpe).first()
                     # logger.warn(cpe)
                     # logger.warn(product)
                     if product:

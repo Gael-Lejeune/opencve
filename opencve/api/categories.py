@@ -53,11 +53,7 @@ class CategoryCveResource(BaseResource):
         category = CategoryController.get({"name": name})
         vendors = []
         vendors.extend([f"{v.name}" for v in category.vendors])
-        vendors.extend(
-                [
-                    f"{v.name}" for v in category.vendors
-                ]
-            )
+        vendors.extend([f"{v.name}" for v in category.vendors])
         for product in category.products:
             cpes = get_cpe_list_from_specific_product(product)
             vendors.extend(cpes)

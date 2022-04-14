@@ -84,7 +84,7 @@ def run(mappings):
         db.session.commit()
 
     check_cpe_values()
-        
+
     info(
         "{} vendors and {} products imported.".format(
             len(mappings["vendors"]), len(mappings["products"])
