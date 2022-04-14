@@ -46,3 +46,10 @@ class ProductCveResource(BaseResource):
         return CveController.list_items(
             {**request.args, "vendor": vendor, "product": product}
         )
+
+class FlatProductListResource(BaseResource):
+    @marshal_with(vendor_product_fields)
+    def get(self):
+        return ProductController.list_items(
+            {**request.args, "product_page": request.args.get("page", 1)}
+        )

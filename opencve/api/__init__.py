@@ -48,6 +48,7 @@ api.add_resource(VendorListResource, "/vendors")
 api.add_resource(VendorResource, "/vendors/<string:name>")
 api.add_resource(VendorCveResource, "/vendors/<string:name>/cve")
 api.add_resource(ProductListResource, "/vendors/<string:vendor>/products")
+api.add_resource(FlatProductListResource, "/products")
 api.add_resource(ProductResource, "/vendors/<string:vendor>/products/<string:product>")
 api.add_resource(
     ProductCveResource, "/vendors/<string:vendor>/products/<string:product>/cve"
