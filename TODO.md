@@ -76,10 +76,10 @@
     - ~~Categories~~
     - ~~Products~~
     - ~~Subscriptions~~
-  - ~~The alerts~~
-  - ~~The reports~~
+  - The alerts
+  - The reports
   - ~~The excels~~
-  - The "impacted categories" field
+  - The "impacted categories" field (temporarly disabled)
     - On the CVE page
     - On the CVE list
     - On the reports
