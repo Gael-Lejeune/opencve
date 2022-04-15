@@ -25,6 +25,8 @@
     - Comment update les elements suivis ?
 
 - Vérifier si tout les produits cités sont bien vulnérables ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+- Valider les tests du workflow en ligne ([ici](https://github.com/Gael-Lejeune/opencve/actions/workflows/tests.yml))
 ---
 ## English
 
@@ -51,3 +53,5 @@
   - How to update the elements followed ?
 
 - Verify if all the products cited are vulnerable ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+- Validate the workflow online ([here](https://github.com/Gael-Lejeune/opencve/actions/workflows/tests.yml))
