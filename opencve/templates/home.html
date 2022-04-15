@@ -54,7 +54,7 @@
                             <span class="time" title="{{ change.created_at.strftime('%d %b %Y, %H:%M') }}"><i class="fa fa-clock-o"></i> {{ change.created_at.strftime("%H:%M") }}</span>
                             <h3 class="timeline-header"><a href="{{ url_for('main.cve', cve_id=change.cve.cve_id) }}">{{ change.cve.cve_id }}</a> {% if new %}is a new CVE{% else %}has changed{% endif %} <a href="{{ url_for('main.cve_change', cve_id=change.cve.cve_id, change_id=change.id) }}" class="btn-json-diff" data-toggle="tooltip" data-container="body" title="View the change details"><i class="fa fa-code"></i></a></h3>
                             <div class="timeline-body">
-                                <table class="table">
+                                <!-- <table class="table">
                                     <thead>
                                         <th class="no-bordered">Impacted categories</th>
                                     <thead>
@@ -84,7 +84,7 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> -->
                                 <div class="row">
                                     <div class="col-md-9">
                                         <p>{{ change.cve.summary }}</p>
@@ -280,7 +280,7 @@
                         <thead>
                         <tr><th class="col-md-2">Date</th>
                         <th>Vendors &amp; Products</th>
-                        <th>Impacted Categories</th>
+                        <!-- <th>Impacted Categories</th> -->
                         </tr></thead>
 
                         <tbody>
@@ -288,7 +288,7 @@
                         <tr>
                             <td><a href="{{ url_for('main.report', link=report.public_link) }}">{{ report.created_at.strftime("%d/%m/%y") }}</a></td>
                             <td>{{ report.details|report_excerpt|safe }}</td>
-                            <td>
+                            <!-- <td>
                                 {% set displayedCategories = [] %}
                                 {% for category in current_user.categories %}
                                     {% for vendor in category.vendors %}
@@ -307,7 +307,7 @@
                                 {% if not displayedCategories %}
                                 <span class="label label-default">None</span>
                                 {% endif %}
-                                </td>
+                            </td> -->
                         </tr>
                         {% endfor %}
                         </tbody>

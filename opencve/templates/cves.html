@@ -243,7 +243,7 @@ Vulnerabilities (CVE)
                         <th class="text-center">CVSS v2</th>
                         <th class="text-center">CVSS v3</th>
                         {% if current_user.is_authenticated %}
-                        <th class="text-center">Impacted categories</th>
+                        <!-- <th class="text-center">Impacted categories</th> -->
                         {% endif %}
                         </thead>
                         {% for cve in cves.items %}
@@ -268,7 +268,7 @@ Vulnerabilities (CVE)
                             <td class="col-md-1 text-center"><span class="label label-default">N/A</span></td>
                             {% endif %}
                             {% if current_user.is_authenticated %}
-                            <td>
+                            <!-- <td>
                                 {% set displayedCategories = [] %}
                                 {% for category in current_user.categories %}
                                     {% for v in cve.vendors %}
@@ -289,7 +289,7 @@ Vulnerabilities (CVE)
                                 {% if not displayedCategories %}
                                 <span class="label label-default">None</span>
                                 {% endif %}
-                            </td>
+                            </td> -->
                             {% endif %}
                         </tr>
                         <tr class="cve-summary">
