@@ -10,7 +10,7 @@ from opencve.models.products import Product
 from opencve.models.vendors import Vendor
 from opencve.models.categories import Category
 from opencve.commands import error, info
-from opencve.utils import get_cpe_list_from_specific_product
+from opencve.utils import check_cpe_values, get_cpe_list_from_specific_product
 from sqlalchemy.dialects.postgresql import array
 
 
@@ -26,6 +26,8 @@ def filter_events(user, events):
 @cel.task(name="HANDLE_ALERTS")
 def handle_alerts():
     cel.app.app_context().push()
+
+    check_cpe_values()
 
     logger.info("Checking for new alerts...")
 
