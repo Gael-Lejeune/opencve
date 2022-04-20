@@ -142,9 +142,9 @@
                     <ul class="pagination">
                         {% set prev = page - 1 %}
                         {% if prev %}
-                        <li class="previous"><a href="{{ url_for('main.home', page=prev) }}">  « prev </a></li>
+                        <li class="previous"><a href="{{ url_for('main.category',category_name=category.name, page=prev) }}">  « prev </a></li>
                         {% endif %}
-                        <li class="next"><a href="{{ url_for('main.home', page=page+1) }}">next »</a></li>
+                        <li class="next"><a href="{{ url_for('main.category',category_name=category.name, page=page+1) }}">next »</a></li>
                     </ul>
                 </div>
             {% endif %}

@@ -41,6 +41,8 @@
     - Sur la liste des CVE
     - Sur les reports
     - Sur le dashboard
+    
+- Valider les tests du workflow en ligne ([ici](https://github.com/Gael-Lejeune/opencve/actions/workflows/tests.yml))
 ---
 ## English
 
@@ -84,3 +86,5 @@
     - On the CVE list
     - On the reports
     - On the dashboard
+    
+- Validate the workflow online ([here](https://github.com/Gael-Lejeune/opencve/actions/workflows/tests.yml))
