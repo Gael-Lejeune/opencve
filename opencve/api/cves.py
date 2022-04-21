@@ -11,6 +11,12 @@ cves_fields = {
     "summary": fields.String(attribute="summary"),
     "created_at": DatetimeField(),
     "updated_at": DatetimeField(),
+    "vendors": CveVendorsField(attribute="json"),
+    "cvss": {
+            "v2": fields.Float(attribute="cvss2"),
+            "v3": fields.Float(attribute="cvss3"),
+        },
+    "cwes": fields.Raw(),
 }
 
 cve_fields = dict(
