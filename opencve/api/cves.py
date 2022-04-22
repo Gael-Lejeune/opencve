@@ -13,9 +13,9 @@ cves_fields = {
     "updated_at": DatetimeField(),
     "vendors": CveVendorsField(attribute="json"),
     "cvss": {
-            "v2": fields.Float(attribute="cvss2"),
-            "v3": fields.Float(attribute="cvss3"),
-        },
+        "v2": fields.Float(attribute="cvss2"),
+        "v3": fields.Float(attribute="cvss3"),
+    },
     "cwes": fields.Raw(),
 }
 
