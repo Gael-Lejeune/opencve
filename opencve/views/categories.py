@@ -94,7 +94,7 @@ def category(category_name):  # Specified Category page
         "category.html", changes=changes, page=page, category=category, form=FlaskForm()
     )
 
-
+@login_required
 @main.route("/category/<category_name>/edit", methods=["GET", "POST"])
 @login_required
 def edit_name(
@@ -110,7 +110,7 @@ def edit_name(
             return redirect(url_for("main.category", category_name=new_category_name))
     return render_template("category.html", category=category, form=FlaskForm())
 
-
+@login_required
 @main.route("/category/<category_name>/delete")
 @login_required
 def delete(category_name):  # Specified Category page when the delete button is clicked
@@ -122,7 +122,7 @@ def delete(category_name):  # Specified Category page when the delete button is 
     else:
         return redirect(url_for("main.categories"))
 
-
+@login_required
 @main.route("/category/<category_name>/upload", methods=["GET", "POST"])
 @login_required
 # Specified Category page when the product list uploading form is used
@@ -155,7 +155,7 @@ def upload_file(category_name):
     else:
         return render_template("category.html", category=category, form=FlaskForm())
 
-
+@login_required
 @main.route("/category/<category_name>/generateCategoryReport", methods=["GET", "POST"])
 @login_required
 def generateReport(category_name):

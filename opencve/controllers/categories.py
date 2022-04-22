@@ -160,7 +160,7 @@ def import_from_excel(self, category_name, path_to_file):
     # version_col = None
     tag_col = None
     min_value_index = None
-    max_value_index = sheet.max_row
+    max_value_index = sheet.max_row + 1
 
     for row in range(1, 3):  # To be sure, we check the 3 firsts rows
         for col in range(0, sheet.max_column):
