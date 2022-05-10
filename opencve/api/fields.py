@@ -23,6 +23,15 @@ class ProductsListField(fields.Raw):
         return sorted([product.name for product in products])
 
 
+class VendorsListField(fields.Raw):
+    """
+    Returns a list of vendors.
+    """
+
+    def format(self, vendors):
+        return sorted([vendor.name for vendor in vendors])
+
+
 class CveVendorsField(fields.Raw):
     """
     Returns a list of vendors and products for a given CVE.

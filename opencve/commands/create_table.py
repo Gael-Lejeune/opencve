@@ -8,6 +8,8 @@ from flask.cli import with_appcontext
 from sqlalchemy.exc import IntegrityError
 
 from opencve.commands import ensure_config, error, info
+
+
 @click.command()
 @click.argument("doit")
 @ensure_config

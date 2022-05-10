@@ -1,6 +1,11 @@
 from opencve.context import _humanize_filter
 from opencve.extensions import db
-from opencve.models import BaseModel, categories_vendors, categories_products, users_categories
+from opencve.models import (
+    BaseModel,
+    categories_vendors,
+    categories_products,
+    users_categories,
+)
 
 
 class Category(BaseModel):

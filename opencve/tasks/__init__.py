@@ -11,6 +11,7 @@ from opencve.tasks.reports import handle_reports
 CELERYBEAT_SCHEDULE = {}
 
 # Periodic CVE check
+# Provisional and set only for testing purpose, needs to be set to a better value in a production environment (15 minutes or more for example)
 CELERYBEAT_SCHEDULE["cve-updates-15-mn"] = {
     "task": "CVE_UPDATES",
     "schedule": timedelta(minutes=15),

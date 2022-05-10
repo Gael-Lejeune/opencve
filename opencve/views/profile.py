@@ -5,9 +5,13 @@ from flask_login import current_user, login_required
 from opencve.controllers.main import main
 from opencve.controllers.tags import UserTagController
 from opencve.extensions import db
-from opencve.forms import (ChangeEmailForm, ChangePasswordForm,
-                           FiltersNotificationForm, MailNotificationsForm,
-                           TagForm)
+from opencve.forms import (
+    ChangeEmailForm,
+    ChangePasswordForm,
+    FiltersNotificationForm,
+    MailNotificationsForm,
+    TagForm,
+)
 from opencve.models.categories import Category
 from opencve.models.cve import Cve
 from opencve.models.tags import CveTag, UserTag

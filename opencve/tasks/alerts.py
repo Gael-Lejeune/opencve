@@ -18,6 +18,7 @@ def filter_events(user, events):
         e for e in events if e.type.code in user.filters_notifications["event_types"]
     ]
 
+
 @cel.task(name="HANDLE_ALERTS")
 def handle_alerts():
     cel.app.app_context().push()
@@ -53,7 +54,7 @@ def handle_alerts():
                 ).first()
                 categories = Category.query.filter(
                     Category.products.contains(product)
-                    ).all()
+                ).all()
                 for user in product.users:
                     if user not in users.keys():
                         users[user] = {"products": [], "vendors": []}

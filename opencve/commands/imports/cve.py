@@ -46,7 +46,7 @@ def run():
             del resp
             items = json.loads(raw.decode("utf-8"))["CVE_Items"]
             del raw
-            
+
         with timed_operation("Creating model objects..."):
 
             for item in items:

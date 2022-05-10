@@ -14,10 +14,145 @@
 
 <section class="content">
     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6">
+        <div class="col-lg-7 col-md-7 col-sm-7">
+            {% if not changes %}
+            <p class="alert alert-info">
+                {% if not category.products and not category.vendors %}
+                The category has no subscription yet, click <a href="{{ url_for('main.vendors') }}">here</a> to view the entire list of vendors and products.
+                {% else %}
+                No changes available.
+                {% endif %}
+            </p>
+            {% else %}
+                <ul class="timeline">
+                    {% set ns = namespace(last_day=false) %}
+                    {% for change in changes %}
+                    {% set ns.current_day = change.created_at.strftime("%d %b %Y") %}
+                    <li class="time-label">
+                        {% if ns.last_day != ns.current_day %}
+                        <span class="bg-blue bg-opencve">
+                            {{ ns.current_day }}
+                        </span>
+                        {% endif %}
+                    </li>
+
+                    {% if (change.events|length == 1) and (change.events[0].type.code == 'new_cve') %}
+                    {% set new = true %}
+                    {% else %}
+                    {% set new = false %}
+                    {% endif %}
+                    <li>
+                        {% if new %}
+                        <i class="fa fa-plus bg-red"></i>
+                        {% else %}
+                        <i class="fa fa-edit bg-blue"></i>
+                        {% endif %}
+                        <div class="timeline-item">
+                            <span class="time" title="{{ change.created_at.strftime('%d %b %Y, %H:%M') }}"><i class="fa fa-clock-o"></i> {{ change.created_at.strftime("%H:%M") }}</span>
+                            <h3 class="timeline-header"><a href="{{ url_for('main.cve', cve_id=change.cve.cve_id) }}">{{ change.cve.cve_id }}</a> {% if new %}is a new CVE{% else %}has changed{% endif %} <a href="{{ url_for('main.cve_change', cve_id=change.cve.cve_id, change_id=change.id) }}" class="btn-json-diff" data-toggle="tooltip" data-container="body" title="View the change details"><i class="fa fa-code"></i></a></h3>
+                            <div class="timeline-body">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <p>{{ change.cve.summary }}</p>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="no-bordered">CVSS v3</td>
+                                                    {% if change.cve.json.impact.baseMetricV3 %}
+                                                    <td class="no-bordered"><span class="label {{ cvss_bg(change.cve.json.impact.baseMetricV3.cvssV3.baseScore)[1] }} label-cvss">{{ change.cve.json.impact.baseMetricV3.cvssV3.baseScore }} {{ change.cve.json.impact.baseMetricV3.cvssV3.baseSeverity }}</span></td>
+                                                    {% else %}
+                                                    <td>--</td>
+                                                    {% endif%}
+                                                </tr>
+                                                <tr>
+                                                    <td>CVSS v2</td>
+                                                    {% if change.cve.json.impact.baseMetricV2 %}
+                                                    <td><span class="label {{ cvss_bg(change.cve.json.impact.baseMetricV2.cvssV2.baseScore)[1] }} label-cvss">{{ change.cve.json.impact.baseMetricV2.cvssV2.baseScore }} {{ change.cve.json.impact.baseMetricV2.severity }}</span></td>
+                                                    {% else %}
+                                                    <td>--</td>
+                                                    {% endif%}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                {% if not new %}
+                                <div class="box-group" id="{{ change.id }}">
+                                    {% for event in change.events %}
+                                    <div class="panel box box-changes">
+                                        <div class="box-header collapsed pointer change-collapsed" data-toggle="collapse" data-parent="#{{ change.id }}" href="#{{ event.id }}" aria-expanded="false">
+                                            <h4 class="box-title">{{ event.type.code|event_description }}
+                                            <span class="box-meta">{{ event.details|event_excerpt|safe }}<i class="fa fa-arrow-circle-o-down"></i><i class="fa fa-arrow-circle-o-up"></i></span>
+                                            </h4>
+                                        </div>
+                                        <div id="{{ event.id }}" class="panel-collapse collapse" aria-expanded="false">
+                                            <div class="box-body">
+                                                <table class="table">
+                                                    <thead>
+                                                    <th>Values Removed</th>
+                                                    <th>Values Added</th>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% set template = 'report/' + event.type.code + '_details.html' %}
+                                                    {% set hide_type = true %}
+                                                    {% include template %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                </div>
+                                {% endif %}
+
+                                <table class="table no-margin-bottom">
+                                    <thead>
+                                        <th>Vendors</th>
+                                        <th>Products</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ change.cve.vendors|vendors_excerpt|safe }}</td>
+                                            <td>{{ change.cve.vendors|products_excerpt|safe }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+				                {% if change.cve.raw_tags %}
+                                <table class="table timeline-footer no-margin-bottom">
+                                    <thead>
+                                        <th>Tags</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ change.cve.raw_tags|tags_excerpt|safe }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+				                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                    {% set ns.last_day = ns.current_day %}
+                    {% endfor %}
+                </ul>
+                <div class="center">
+                    <ul class="pagination">
+                        {% set prev = page - 1 %}
+                        {% if prev %}
+                        <li class="previous"><a href="{{ url_for('main.category',category_name=category.name, page=prev) }}">  « prev </a></li>
+                        {% endif %}
+                        <li class="next"><a href="{{ url_for('main.category',category_name=category.name, page=page+1) }}">next »</a></li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-5 col-md-5 col-sm-5">
             <div class="box box-primary">
                 <div class="box-header with-border">
-                    <h3 class="box-title">Category vendors ({{ category.vendors |  length }})</h3>
+                    <h3 class="box-title">Category vendors ({{ category.vendors|  length }})</h3>
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
@@ -29,57 +164,54 @@
                                     <th class="text-center">Personnal Actions</th>
                                     <th class="text-center"></th>
                                 </tr>
-                                {% for vendor in category.vendors %}
-                                <tr {% if loop.first %}style="border-top: 0px;" {% endif %}>
-                                    <td style="border-top: 0px;">
-                                        <a href="{{ url_for('main.vendors', vendor=vendor.name) }}">{{ vendor.name | humanize}}</a>
+                            {% for vendor in category.vendors %}
+                            <tr {% if loop.first %}style="border-top: 0px;" {% endif %}>
+                                <td style="border-top: 0px;">
+                                    <a href="{{ url_for('main.vendors', vendor=vendor.name) }}">{{ vendor.name |  humanize }}</a>
+                                </td>
+                                <td class="text-center" style="border-top: 0px;">
+                                    <div class="btn-group">
+                                        {% if current_user.is_authenticated %}
+                                        {% if vendor in current_user.vendors %}
+                                        <button class="btn btn-danger btn-xs subscribe"
+                                                id="unsubscribe_vendor_{{ venor.id }}" type="button">Unsubscribe
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-default btn-xs subscribe"
+                                                id="subscribe_vendor_{{ vendor.id }}" type="button"><i class="fa fa-bell-o"></i> Subscribe
+                                        </button>
+                                        {% endif %}
+                                        {% else %}
+                                        <a class="btn btn-default btn-xs"
+                                           href="{{ url_for('user.login', next=request.url) }}" data-toggle="tooltip"
+                                           data-container="body" title="You must be signed in to subscribe"><i class="fa fa-bell-o"></i> Subscribe</a>
+                                        {% endif %}
+                                        <a href="{{ url_for('main.cves', vendor=vendor.name) }}" class="btn btn-default btn-xs"><i class="fa fa-shield"></i> CVE</a>
+                                    </div>
+                                </td>
+                                {% if current_user in category.users %}
+                                    <td class="pull-right" style="border-top: 0px;">
+                                        {% if vendor in category.vendors %}
+                                        <button class="btn btn-danger btn-xs    pull-right subscribe"
+                                                id="unsubscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Remove
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
+                                                id="subscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Add
+                                        </button>
+                                        {% endif %}
                                     </td>
-                                    <td class="text-center" style="border-top: 0px;">
-                                        <div class="btn-group">
-                                            {% if current_user.is_authenticated %}
-                                            {% if vendor in current_user.vendors %}
-                                            <button class="btn btn-danger btn-xs subscribe"
-                                                    id="unsubscribe_vendor_{{ vendor.id }}" type="button">Unsubscribe
-                                            </button>
-                                            {% else %}
-                                            <button class="btn btn-default btn-xs subscribe"
-                                                    id="subscribe_vendor_{{ vendor.id }}" type="button"><i class="fa fa-bell-o"></i> Subscribe
-                                            </button>
-                                            {% endif %}
-                                            {% else %}
-                                            <a class="btn btn-default btn-xs"
-                                               href="{{ url_for('user.login', next=request.url) }}" data-toggle="tooltip"
-                                               data-container="body" title="You must be signed in to subscribe"><i class="fa fa-bell-o"></i> Subscribe</a>
-                                            {% endif %}
-                                            <a href="{{ url_for('main.cves', vendor=vendor.name) }}" class="btn btn-default btn-xs"><i class="fa fa-shield"></i> CVE</a>
-                                        </div>
-                                    </td>
-                                    {% if current_user in category.users %}
-                                        <td class="pull-right" style="border-top: 0px;">
-                                            {% if vendor in category.vendors %}
-                                            <button class="btn btn-danger btn-xs    pull-right subscribe"
-                                                    id="unsubscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Remove
-                                            </button>
-                                            {% else %}
-                                            <button class="btn btn-defaul tbtn-xs   pull-right subscribe"
-                                                    id="subscribe_categoryvendor_{{category.id}}+{{ vendor.id }}" type="button">Add
-                                            </button>
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                </tr>
-                                {% endfor %}
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
                             </tbody>
                         </table>
                         {% else %}
-                        <p>The category has no subscription yet, click <a href="{{ url_for('main.vendors') }}">here</a> to view the entire list of vendors.</p>
+                        <p>The category has no subscription yet, click <a href="{{ url_for('main.vendors') }}">here</a> to view the entire list of vendors and vendors.</p>
                         {% endif %}
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="box box-primary">
                 <div class="box-header with-border">
                     <h3 class="box-title">Category products ({{ category.products|  length }})</h3>
@@ -95,7 +227,7 @@
                                     <th class="text-center"></th>
                                 </tr>
                             {% for product in category.products %}
-                            <tr {% if loop.first %}style="border-top: 0px;" {%  endif %}>
+                            <tr {% if loop.first %}style="border-top: 0px;" {% endif %}>
                                 <td style="border-top: 0px;">
                                     <a href="{{ url_for('main.vendors', vendor=product.vendor.name) }}">{{ product.name |  humanize }}</a>
                                 </td>
@@ -142,11 +274,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="box box-primary">
                 <div class="box-header with-border">
                     <h3 class="box-title">Upload File</h3>
@@ -161,30 +288,25 @@
                     <br>
                     <p>Please note that :</p>
                     <ul>
-                        <li>An .xslx file is expected</li>
-                        <li>Four columns are expected to be declared in the first three rows :</li>
-                            <ul>
-                                <li>Vendor</li>
-                                <li>Product</li>
-                                <li>Version</li>
-                                <li>
-                                    Tag (CPE product tag only, it should be in the following format : <i>my_product_name</i>, you can search for the entire CPE tag <a href="https://nvd.nist.gov/products/cpe/search">here</a>)
-                                </li>
-                            </ul>
-                        <li>The "Tag" column is optionnal and may have empty cells</li>
+                        <li>A .xslx file is expected</li>
+                        <li>A column is expected to be declared in the first three rows :</li>
                             <ul>
                                 <li>
-                                    If so, the program will try and guess the tag from the other columns.
-                                    Please, keep in mind that this is not perfect, you may check that every thing was imported after the process. 
+                                    Tag (CPE product tag only, it should be in the following format : <i>my_product_name</i>.
+                                </li>
+                                <li>
+                                    CPE complete tag should be in the following format : <i>cpe:cpe_version:part:vendor:product:version:...</i><br>
+                                </li>
+                                <li>
+                                    You can search for the entire CPE tag <a href="https://nvd.nist.gov/products/cpe/search">here</a>.<br>
+                                    You can learn more on CPE <a href="https://nvd.nist.gov/products/cpe">here</a>.
                                 </li>
                             </ul>
-                        <li>This operation may take several minutes</li>
+                        <li>This operation may take several minutes.</li>
                     <ul>
                     <!-- TODO : Maybe add an example picture of a valid file ? -->
                 </div>
             </div>
-        </div>
-        <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="box box-primary">
                 <div class="box-header with-border">
                     <h3 class="box-title">Edit Category name</h3>
@@ -210,11 +332,19 @@
                     </a>
                 </div>
             </div>
+            <a href = "{{ url_for('main.generateReport', category_name=category.name) }}">
+                <button class="btn btn-danger btn-xs pull-right" id="generateReport_{{ current_user.username }}">Generate Custom Report based on selected Category</button>
+            </a>
         </div>
-        <a href = "{{ url_for('main.generateReport', category_name=category.name) }}">
-            <button class="btn btn-danger btn-xs pull-right" id="generateReport_{{ current_user.username }}">Generate Custom Report based on selected Category</button>
-        </a>
     </div>
+    <!-- <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+           
+        </div>
+    </div> -->
 </section>
 
 {% endblock %}

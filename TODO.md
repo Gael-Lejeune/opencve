@@ -17,8 +17,16 @@
 
 - Regarder régulièrement les ajouts sur le github de OpenCVE [ici](https://github.com/opencve/opencve).
 
-- Trouver un moyen de ne pas bloquer la page de category lors de l'import via fichier excel.
-  - Regarder comment faire du multi-threeading avec flask.
+- Améliorer l'API
+
+- Doc
+  - Documentation de l'API
+  - Documentation de l'utilisation de l'application
+    - Comment update les elements suivis ?
+
+- Vérifier si tout les produits cités sont bien vulnérables ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+- Valider les tests du workflow en ligne ([ici](https://github.com/Gael-Lejeune/opencve/actions/workflows/tests.yml))
 ---
 ## English
 
@@ -37,5 +45,13 @@
 
 - Look regularly the additions on the github of OpenCVE [here](https://github.com/opencve/opencve).
 
-- Find a way to not block the category page when importing via Excel file.
-  - Look how to do multi-threading with flask.
+- Improve the API
+
+- Doc
+  - API documentation
+  - Application documentation
+  - How to update the elements followed ?
+
+- Verify if all the products cited are vulnerable ([Github Issue](https://github.com/opencve/opencve/issues/184))
+
+- Validate the workflow online ([here](https://github.com/Gael-Lejeune/opencve/actions/workflows/tests.yml))

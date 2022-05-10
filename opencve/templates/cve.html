@@ -129,6 +129,19 @@
                                         <td class="col-md-1 rowspaned" rowspan="{{ child.cpe_match|length }}">OR</td>
                                         {% endif %}
                                         <td>{{ cpe.cpe23Uri }}</td>
+                                        {% if cpe.versionStartIncluding %}
+                                        <td>From (including) {{cpe.versionStartIncluding}}</td>
+                                        {% endif %} 
+                                        {% if cpe.versionStartExcluding %}
+                                        <td>From (excluding) {{cpe.versionStartExcluding}}</td>
+                                        {% endif %}
+
+                                        {% if cpe.versionEndIncluding %}
+                                        <td>Up to (including) {{cpe.versionEndIncluding}}</td>
+                                        {% endif %} 
+                                        {% if cpe.versionEndExcluding %}
+                                        <td>Up to (excluding) {{cpe.versionEndExcluding}}</td>
+                                        {% endif %}
                                     </tr>
                                     {% endfor %}
                                 </table>

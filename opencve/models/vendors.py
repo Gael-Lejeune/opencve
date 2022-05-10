@@ -13,7 +13,6 @@ class Vendor(BaseModel):
     users = db.relationship("User", secondary=users_vendors)
     categories = db.relationship("Category", secondary=categories_vendors)
 
-
     @property
     def human_name(self):
         return _humanize_filter(self.name)

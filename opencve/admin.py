@@ -27,8 +27,7 @@ class CustomHtmlHTML(HtmlDiff):
         super().__init__(*args, **kwargs)
 
     def _format_line(self, side, flag, linenum, text):
-        text = text.replace("&", "&amp;").replace(
-            ">", "&gt;").replace("<", "&lt;")
+        text = text.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
         text = text.replace(" ", "&nbsp;").rstrip()
         return '<td class="diff_header">%s</td><td class="break">%s</td>' % (
             linenum,
@@ -255,10 +254,8 @@ class HomeView(AdminIndexView):
 
         differ = CustomHtmlHTML()
         diff = differ.make_table(
-            fromlines=json.dumps(
-                previous_json, sort_keys=True, indent=2).split("\n"),
-            tolines=json.dumps(change.json, sort_keys=True,
-                               indent=2).split("\n"),
+            fromlines=json.dumps(previous_json, sort_keys=True, indent=2).split("\n"),
+            tolines=json.dumps(change.json, sort_keys=True, indent=2).split("\n"),
             context=True,
         )
 
@@ -368,6 +365,8 @@ class VendorModelView(AuthModelView):
     can_view_details = True
     column_filters = column_searchable_list = ["name"]
     column_list = ["name", "created_at"]
+    column_details_list = ["name", "users", "created_at", "updated_at"]
+    column_formatters_detail = dict(users=lambda v, c, m, p: m.users)
 
 
 class CategoryModelView(AuthModelView):
@@ -385,3 +384,5 @@ class ProductModelView(AuthModelView):
     can_view_details = True
     column_filters = column_searchable_list = ["name"]
     column_list = ["name", "vendor", "created_at"]
+    column_details_list = ["vendor", "name", "users", "created_at", "updated_at"]
+    column_formatters_detail = dict(users=lambda v, c, m, p: m.users)

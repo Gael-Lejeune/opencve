@@ -72,7 +72,7 @@ def test_no_activity(client, login):
     response = client.get("/")
     assert response.status_code == 200
     assert (
-        b'You have to subscribe to <a href="/vendors">products and vendors</a> to see their last changes.'
+        b'You have to subscribe to <a href="/vendors">products and vendors</a> or <a href="/categories">categories</a> to see their last changes.'
         in response.data
     )
 
