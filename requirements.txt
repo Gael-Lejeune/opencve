@@ -18,7 +18,7 @@ Flask-Sendmail
 SQLAlchemy==1.3.1
 SQLAlchemy-Utils==0.33.11
 psycopg2-binary==2.8.4
-Redis==3.3.11
+Redis==4.4.4
 
 # Misc
 arrow==0.13.1
